@@ -34,7 +34,7 @@ pizza_bella_api/
     │   ├── menu_item.py
     │   ├── order.py
     │   └── review.py
-    ├── crud/
+    ├── controller/
     │   ├── __init__.py
     │   ├── restaurant.py
     │   ├── user.py
@@ -104,7 +104,7 @@ Esquemas de validación con **Pydantic** para datos de entrada (POST/PUT) y sali
 
 ---
 
-### 📁 `crud/`
+### 📁 `controller/`
 
 Contiene funciones para interactuar con la base de datos (MongoDB).
 
@@ -116,7 +116,7 @@ Contiene funciones para interactuar con la base de datos (MongoDB).
 
 Define los endpoints expuestos por la API REST.
 
-- Aquí se registran las rutas y se conectan con la lógica `crud/` y los `schemas/`.
+- Aquí se registran las rutas y se conectan con la lógica `controller/` y los `schemas/`.
 
 ---
 
