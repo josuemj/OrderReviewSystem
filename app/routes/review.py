@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
+from typing import Optional
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,6 +16,14 @@ async def create_review(review: ReviewCreate):
 @router.get("/", response_model=List[ReviewOut])
 async def get_reviews():
     return await crud.get_all_reviews()
+
+@router.get("/relevantes", response_model=List[ReviewOut])
+async def get_reviews_by_relevance(
+    limit: int = Query(default=10, le=50),
+    restaurantId: Optional[str] = None,
+    min_rating: Optional[float] = None
+):
+    return await crud.get_reviews_by_relevance(limit, restaurant_id=restaurantId, min_rating=min_rating)
 
 @router.get("/{review_id}", response_model=ReviewOut)
 async def get_review(review_id: str):

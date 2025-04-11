@@ -39,7 +39,7 @@ async def test_reviews_crud():
         # Actualizar
         response = await client.put(f"/reviews/{review_id}", json={
             "comment": "Muy buena experiencia",
-            "rating": 4.7
+            "rating": 5
         })
         assert response.status_code == 200
         assert response.json()["message"] == "Actualizado correctamente"
@@ -48,6 +48,24 @@ async def test_reviews_crud():
         # Confirmar cambio
         response = await client.get(f"/reviews/{review_id}")
         assert response.json()["comment"] == "Muy buena experiencia"
+
+        # Obtener reseñas por relevancia (sin filtros)
+        response = await client.get("/reviews/relevantes?limit=5")
+        assert response.status_code == 200
+        assert any(r["id"] == review_id for r in response.json())
+        print("RELEVANTES: PASSED (sin filtros)")
+
+        # Obtener reseñas por relevancia con filtro por restaurantId
+        response = await client.get(f"/reviews/relevantes?restaurantId=67f8598507801888ac0c0294")
+        assert response.status_code == 200
+        assert all(r["restaurantId"] == "67f8598507801888ac0c0294" for r in response.json())
+        print("RELEVANTES: PASSED (restaurantId)")
+
+        # Obtener reseñas por relevancia con min_rating
+        response = await client.get("/reviews/relevantes?min_rating=4.0")
+        assert response.status_code == 200
+        assert all(r["rating"] >= 4.0 for r in response.json())
+        print("RELEVANTES: PASSED (min_rating)")
 
         # Eliminar
         response = await client.delete(f"/reviews/{review_id}")

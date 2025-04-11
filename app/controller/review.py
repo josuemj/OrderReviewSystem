@@ -31,3 +31,19 @@ async def update_review(review_id, data):
 async def delete_review(review_id):
     result = await db.reviews.delete_one({"_id": ObjectId(review_id)})
     return result.deleted_count
+
+async def get_reviews_by_relevance(limit: int = 10, restaurant_id: str = None, min_rating: float = None):
+    query = {}
+
+    if restaurant_id:
+        query["restaurantId"] = restaurant_id
+
+    if min_rating is not None:
+        query["rating"] = {"$gte": min_rating}
+
+    cursor = db.reviews.find(query).sort([
+        ("rating", -1),
+        ("createdAt", -1)
+    ]).limit(limit)
+
+    return [dict(r, id=str(r["_id"])) async for r in cursor]
