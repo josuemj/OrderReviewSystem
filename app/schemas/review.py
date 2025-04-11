@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
 class ReviewBase(BaseModel):
@@ -7,6 +8,13 @@ class ReviewBase(BaseModel):
     orderId: str
     rating: float
     comment: str
+
+class ReviewCreate(ReviewBase):
+    pass
+
+class ReviewUpdate(BaseModel):
+    rating: Optional[float]
+    comment: Optional[str]
 
 class ReviewOut(ReviewBase):
     id: str

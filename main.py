@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from app.db.client import client
+from app.routes import review
 
 app = FastAPI()
+app.include_router(review.router)
 
 @app.on_event("startup")
 async def startup_db_check():
