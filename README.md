@@ -48,6 +48,13 @@ pizza_bella_api/
     │   ├── menu_item.py
     │   ├── order.py
     │   └── review.py
+    ├── test/
+    │   ├── __init__.py
+    │   ├── restaurants.py
+    │   ├── users.py
+    │   ├── menu_items.py
+    │   ├── orders.py
+    │   └── reviews.py
     └── utils/
         └── helpers.py
 ```
@@ -128,6 +135,14 @@ Funciones auxiliares o utilitarias.
 
 ---
 
+### 📁 `test/`
+
+Pruebas unitaria para endpoints.
+
+- Aqui estaran las pruebas unitarias para saber como hacer peticiones al backend, ademas de confirmar su funcionalidad.
+
+---
+
 ## 🚀 Cómo ejecutar
 
 ```bash
@@ -136,4 +151,7 @@ pip install -r requirements.txt
 
 # Ejecutar el servidor
 uvicorn main:app --reload
+
+# Ejecutar pruebas
+pytest -s app\test\restaurants.py
 ```
