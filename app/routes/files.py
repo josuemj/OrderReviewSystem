@@ -1,10 +1,11 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import Query, APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import JSONResponse, FileResponse
 import tempfile
 import subprocess
 import os
 
 router = APIRouter()
+EXPORT_DIR = "exports"
 
 MONGO_URI = os.getenv("MONGODB_URI")
 DB_NAME = "pizzabella"
@@ -45,3 +46,50 @@ async def upload_file(collection: str, file: UploadFile = File(...)):
             return JSONResponse(content={"message": "Importación completada", "output": result.stdout})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/download-files")
+def download_collection(
+    collection: str = Query(..., description="Nombre de la colección a exportar"),
+    format: str = Query(..., pattern="^(json|csv|bson)$", description="Formato: json, csv, bson")
+):
+    export_path = os.path.join(EXPORT_DIR, f"{collection}.{format}")
+
+    # Borrar archivo si ya existe
+    if os.path.exists(export_path):
+        os.remove(export_path)
+
+    uri = os.getenv("MONGODB_URI")
+
+    if not uri or not uri.startswith("mongodb"):
+        raise HTTPException(status_code=500, detail=f"URI inválida: {uri}")
+
+    if format == "bson":
+        export_path = os.path.join(EXPORT_DIR, "pizzabella", f"{collection}.bson")
+        dump_path = os.path.join(EXPORT_DIR)
+
+        command = [
+            "mongodump",
+            f"--uri={uri}",
+            f"--collection={collection}",
+            f"--out={dump_path}",
+        ]
+    else:
+        command = [
+            "mongoexport",
+            f"--uri={uri}",
+            f"--collection={collection}",
+            f"--out={export_path}",
+        ]
+        if format == "csv":
+            command.extend(["--type=csv", "--fields=_id"])
+
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError:
+        raise HTTPException(status_code=500, detail="Error al exportar la colección")
+
+    return FileResponse(
+        export_path,
+        filename=os.path.basename(export_path),
+        media_type="application/octet-stream" if format == "bson" else None
+    )

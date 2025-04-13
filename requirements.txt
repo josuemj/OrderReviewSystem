@@ -4,6 +4,7 @@ motor
 pydantic
 pydantic-settings
 python-dotenv
+python-multipart
 
 # Para pruebas
 pytest

@@ -3,6 +3,8 @@ from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
 from app.db.client import client
 from app.routes import review, restaurant, files
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 app.include_router(review.router)
