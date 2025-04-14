@@ -44,7 +44,7 @@ async def get_top_rated_restaurants(limit: int = 10):
                 "name": "$restaurant.name",
                 "location": "$restaurant.location",
                 "categories": "$restaurant.categories",
-                "restaurantId": { "$toString": "$restaurant._id" }  # <- este era el problema real
+                "restaurantId": { "$toString": "$restaurant._id" }  
             }
         }
     ]

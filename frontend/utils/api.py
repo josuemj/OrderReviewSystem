@@ -18,3 +18,18 @@ def authenticate_user(email: str, password: str):
     except Exception as e:
         print("Error de conexión:", e)
         return None
+
+def get_all_restaurants():
+    #TODO: R de restaurants
+    pass
+
+
+def get_top_rated_restaurants(limit=10):
+    try:
+        response = requests.get(f"{API_URL}/restaurants/top-rated", params={"limit": limit})
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error obteniendo mejores calificados:", e)
+        return []
