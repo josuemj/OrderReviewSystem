@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
 from app.db.client import client
-from app.routes import review, restaurant, files
+from app.routes import review, restaurant, files, login
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -10,6 +10,7 @@ app = FastAPI()
 app.include_router(review.router)
 app.include_router(restaurant.router)
 app.include_router(files.router)
+app.include_router(login.router)
 
 @app.on_event("startup")
 async def startup_db_check():
