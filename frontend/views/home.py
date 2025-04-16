@@ -28,11 +28,3 @@ def render():
         st.subheader(view_label)
         for r in st.session_state.restaurants:
             st.markdown(f"**{r['name']}** - ⭐ {r.get('averageRating', 'N/A')}")
-
-    st.markdown("---")
-    if st.button("Cerrar sesión"):
-        st.session_state.logged_in = False
-        st.session_state.user = None
-        st.session_state.restaurants = []
-        st.session_state.view = None
-        st.rerun()
