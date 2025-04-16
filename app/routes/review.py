@@ -14,8 +14,9 @@ async def create_review(review: ReviewCreate):
     return await crud.create_review(review.dict())
 
 @router.get("/", response_model=List[ReviewOut])
-async def get_reviews():
-    return await crud.get_all_reviews()
+async def get_reviews(page: int = Query(1, gt=0), limit: int = Query(10, le=100)):
+    skip = (page - 1) * limit
+    return await crud.get_all_reviews(skip=skip, limit=limit)
 
 @router.get("/relevantes", response_model=List[ReviewOut])
 async def get_reviews_by_relevance(

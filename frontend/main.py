@@ -9,15 +9,15 @@ def main():
     if st.session_state.logged_in:
         # Solo mostrar sidebar si está logueado
         st.sidebar.title("🍕 Navegación")
-        selected = st.sidebar.radio("Ir a:", ["🏠 Home", "📦 Mis Órdenes", "📝 Mis Reseñas", "👤 Mi Perfil"])
+        selected = st.sidebar.radio("Ir a:", ["🏠 Home", "📦 Órdenes", "📝 Reseñas", "👤 Perfil"])
 
         if selected == "🏠 Home":
             home.render()
-        elif selected == "📦 Mis Órdenes":
+        elif selected == "📦 Órdenes":
             orders.render()
-        elif selected == "📝 Mis Reseñas":
+        elif selected == "📝 Reseñas":
             reviews.render()
-        elif selected == "👤 Mi Perfil":
+        elif selected == "👤 Perfil":
             profile.render()
 
         if st.sidebar.button("Cerrar sesión", key="logout_sidebar"):

@@ -12,9 +12,22 @@ async def create_review(data):
     result = await db.reviews.insert_one(data)
     return str(result.inserted_id)
 
-async def get_all_reviews():
-    cursor = db.reviews.find()
-    return [dict(r, id=str(r["_id"])) async for r in cursor]
+async def get_all_reviews(skip: int = 0, limit: int = 10):
+    cursor = db.reviews.find().skip(skip).limit(limit)
+    results = []
+
+    async for r in cursor:
+        r["id"] = str(r["_id"])
+        r["_id"] = str(r["_id"])
+        if "restaurantId" in r:
+            r["restaurantId"] = str(r["restaurantId"])
+        if "orderId" in r:
+            r["orderId"] = str(r["orderId"])
+        if "userId" in r:
+            r["userId"] = str(r["userId"])
+        results.append(r)
+
+    return results
 
 async def get_review_by_id(review_id):
     review = await db.reviews.find_one({"_id": ObjectId(review_id)})
