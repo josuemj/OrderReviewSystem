@@ -33,3 +33,13 @@ def get_top_rated_restaurants(limit=10):
     except Exception as e:
         print("Error obteniendo mejores calificados:", e)
         return []
+    
+def get_avg_rating_by_restaurant(restaurant_id: str):
+    try:
+        response = requests.get(f"{API_URL}/restaurants/avg-rating", params={"id": restaurant_id})
+        if response.status_code == 200 and response.json():
+            return response.json()[0]  
+        return None
+    except Exception as e:
+        print("Error al obtener rating promedio:", e)
+        return None
