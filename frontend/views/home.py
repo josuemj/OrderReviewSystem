@@ -16,6 +16,11 @@ def render():
             restaurants = get_all_restaurants()
             st.session_state.restaurants = restaurants
             st.session_state.view = "all"
+        
+        if st.button("Ordenar"):
+            restaurants = get_all_restaurants()
+            st.session_state.restaurants = restaurants
+            st.session_state.view = "order"
 
     with col2:
         if st.button("⭐ Ver mejores calificados"):
@@ -26,35 +31,41 @@ def render():
     st.markdown("---")
     if "restaurants" in st.session_state:
         view_label = "Todos los restaurantes" if st.session_state.view == "all" else "Mejores calificados"
+        view_label = "Ordenar" if st.session_state.view == "order" else view_label
         st.subheader(view_label)
 
         for r in st.session_state.restaurants:
+            
             print(type(r))
             print(r)
             restaurant_id =  r["_id"]
             lat = r["location"]["coordinates"]["lat"]
             lon = r["location"]["coordinates"]["lng"]
+            
             with st.expander(f"{r['name']}"):
 
-                st.markdown(f"📍 Ubicación: {r.get('location', 'N/D')}")
-                # st.map(pd.DataFrame([{"lat": lat, "lon": lon}]))
-
+                st.markdown(f"📍 Ubicación: {r["location"]["address"]}")
+                st.markdown(f"🌆 City {r["location"]["city"]}")
                 st.markdown(f"🏷️ Categorías: {', '.join(r.get('categories', []))}")
                 
-                details = get_avg_rating_by_restaurant(r['_id']) or {}
-                avg = round(details.get("averageRating", 0), 2)
-                count = details.get("totalReviews", 0)
+                if view_label == "Todos los restaurantes":
+                    details = get_avg_rating_by_restaurant(r['_id']) or {}
+                    avg = round(details.get("averageRating", 0), 2)
+                    count = details.get("totalReviews", 0)
+                    st.markdown(f"⭐ Promedio: `{avg}` ({count} reseñas)")
+                    st.map(pd.DataFrame([{"lat": lat, "lon": lon}]))
 
-                st.markdown(f"⭐ Promedio: `{avg}` ({count} reseñas)")
-                if st.button(" 🚚 Menu 🍕", key=restaurant_id):
-                    menu_items = get_menu_items_by_restaurant(restaurant_id)
-                    st.session_state.menu_items = menu_items
-                    st.session_state.selected_restaurant_id = restaurant_id
-                    
-                    if menu_items:
-                        show_order_dialog(menu_items)
-                    else:
-                        st.warning("Este restaurante no tiene platillos disponibles.")
+                if view_label == "Ordenar":
+                    if st.button(" 🚚 Menu 🍕", key=restaurant_id):
+                        menu_items = get_menu_items_by_restaurant(restaurant_id)
+                        st.session_state.menu_items = menu_items
+                        st.session_state.selected_restaurant_id = restaurant_id
+                        
+                        if menu_items:
+                            show_order_dialog(menu_items)
+                        else:
+                            st.warning("Este restaurante no tiene platillos disponibles.")
+    
 
 
 
@@ -62,7 +73,7 @@ def render():
     st.markdown("---")
     
     
-@st.dialog("Order")
+@st.dialog("Ordernar")
 def show_order_dialog(menu_items):
     total = 0
     order = []
