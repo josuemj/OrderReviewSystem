@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
 from app.db.client import client
-from app.routes import review, restaurant, files, login, menu_item
+from app.routes import review, restaurant, files, login, menu_item, order
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 
@@ -27,6 +27,8 @@ app.include_router(restaurant.router)
 app.include_router(files.router)
 app.include_router(login.router)
 app.include_router(menu_item.router)
+app.include_router(order.router)
+
 
 @app.get("/")
 async def root():

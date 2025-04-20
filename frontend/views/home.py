@@ -1,14 +1,14 @@
 import streamlit as st
-from utils.api import get_all_restaurants, get_top_rated_restaurants, get_avg_rating_by_restaurant, get_menu_items_by_restaurant
+from utils.api import get_all_restaurants, get_top_rated_restaurants, get_avg_rating_by_restaurant, get_menu_items_by_restaurant, set_order
 import pandas as pd
 
 def render():
     st.title("🍕 Panel Principal - Pizzabella")
-    st.success(f"Bienvenido {st.session_state.user['name']} 👋")
+    st.success(f"Bienvenido {st.session_state.user["name"]} 👋")
 
     st.markdown("---")
     st.subheader("¿Qué deseas hacer?")
-
+    
     col1, col2 = st.columns(2)
 
     with col1:
@@ -67,7 +67,7 @@ def render():
                         st.session_state.selected_restaurant_id = restaurant_id
                         
                         if menu_items:
-                            show_order_dialog(menu_items)
+                            show_order_dialog(menu_items, restaurant_id)
                         else:
                             st.warning("Este restaurante no tiene platillos disponibles.")
     
@@ -78,10 +78,10 @@ def render():
     st.markdown("---")
     
     
-@st.dialog("Ordernar")
-def show_order_dialog(menu_items):
+@st.dialog("Ordenar")
+def show_order_dialog(menu_items, restaurant_id):
     total = 0
-    order = []
+    order_items = []
 
     for item in menu_items:
         qty = st.number_input(
@@ -94,12 +94,10 @@ def show_order_dialog(menu_items):
         if qty > 0:
             subtotal = qty * item['price']
             total += subtotal
-            order.append({
-                "item_id": item["_id"],
-                "name": item["name"],
-                "price": item["price"],
-                "qty": qty,
-                "subtotal": subtotal
+            order_items.append({
+                "menuItemId": item["_id"], 
+                "quantity": qty,
+                "price": item["price"]
             })
 
             st.caption(f"🛍️ {qty} x {item['name']} = Q{subtotal}")
@@ -108,9 +106,20 @@ def show_order_dialog(menu_items):
     if total > 0:
         st.markdown(f"### 💰 Total: Q{total}")
         if st.button("🚚 Confirmar orden"):
-            # Aquí podrías guardar la orden o simularla
             st.success("¡Orden enviada con éxito!")
+
+            # Payload con nombres según schema
+            order_payload = {
+                "userId": st.session_state.user["id"],
+                "restaurantId": restaurant_id,
+                "items": order_items,
+                "total": total
+            }
+
+            set_order(order_payload)
     else:
         st.info("Selecciona al menos un platillo para ordenar.")
+
+
 
 

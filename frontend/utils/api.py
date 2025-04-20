@@ -113,9 +113,24 @@ menu items
 def get_menu_items_by_restaurant(restaurant_id: str):
     try:
         response = requests.get(f"{API_URL}/menu-items/by-restaurant/{restaurant_id}")
-        if response.status_code == 200:
+        if response.status_code == 200: 
             return response.json()
         return []
     except Exception as e:
         print("Error obteniendo platillos del restaurante:", e)
         return []
+
+"""
+orders
+"""
+
+def set_order(data: dict):
+    try:
+        response = requests.post(f"{API_URL}/orders/", json=data)
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al crear orden:", e)
+        return False
+
+def get_orders_by_user(userId : str):
+    pass
