@@ -30,15 +30,20 @@ def render():
 
     st.markdown("---")
     if "restaurants" in st.session_state:
-        view_label = "Todos los restaurantes" if st.session_state.view == "all" else "Mejores calificados"
-        view_label = "Ordenar" if st.session_state.view == "order" else view_label
+        view_map = {
+            "all": "Todos los restaurantes",
+            "order": "Ordenar",
+            "top": "Mejores Calificados"
+        }
+
+        view_label = view_map.get(st.session_state.view, "")
         st.subheader(view_label)
 
         for r in st.session_state.restaurants:
             
             print(type(r))
             print(r)
-            restaurant_id =  r["_id"]
+            restaurant_id = r["_id"] if "_id" in r else r["id"]
             lat = r["location"]["coordinates"]["lat"]
             lon = r["location"]["coordinates"]["lng"]
             
@@ -48,8 +53,8 @@ def render():
                 st.markdown(f"🌆 City {r["location"]["city"]}")
                 st.markdown(f"🏷️ Categorías: {', '.join(r.get('categories', []))}")
                 
-                if view_label == "Todos los restaurantes":
-                    details = get_avg_rating_by_restaurant(r['_id']) or {}
+                if view_label == "Todos los restaurantes" or view_label == "Mejores Calificados":
+                    details = get_avg_rating_by_restaurant(restaurant_id) or {}
                     avg = round(details.get("averageRating", 0), 2)
                     count = details.get("totalReviews", 0)
                     st.markdown(f"⭐ Promedio: `{avg}` ({count} reseñas)")
