@@ -92,3 +92,9 @@ async def get_average_ratings_by_restaurant(id: Optional[str] = Query(None)):
 
     result = await db.reviews.aggregate(pipeline).to_list(None)
     return result
+
+async def get_all_restaurants():
+    restaurants = await db.restaurants.find().to_list(length=None)
+    for r in restaurants:
+        r["_id"] = str(r["_id"])
+    return restaurants

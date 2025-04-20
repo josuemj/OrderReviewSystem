@@ -14,3 +14,7 @@ async def top_rated_restaurants(limit: int = Query(default=10, le=50)):
 @router.get("/avg-rating")
 async def avg_rating(id: Optional[str] = Query(None)):
     return await crud.get_average_ratings_by_restaurant(id=id)
+
+@router.get("/")
+async def list_all_restaurants():
+    return await crud.get_all_restaurants()

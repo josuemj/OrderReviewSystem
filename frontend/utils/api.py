@@ -42,8 +42,14 @@ def register_user(name: str, email: str, password: str):
 
 
 def get_all_restaurants():
-    #TODO: R de restaurants
-    pass
+    try:
+        response = requests.get(f"{API_URL}/restaurants/")
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error obteniendo restaurantes:", e)
+        return []
 
 def get_top_rated_restaurants(limit=10):
     try:
@@ -98,3 +104,18 @@ def delete_review(review_id: str):
     except Exception as e:
         print("Error al eliminar reseña:", e)
         return False
+
+
+"""
+menu items
+"""
+
+def get_menu_items_by_restaurant(restaurant_id: str):
+    try:
+        response = requests.get(f"{API_URL}/menu-items/by-restaurant/{restaurant_id}")
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error obteniendo platillos del restaurante:", e)
+        return []
