@@ -3,6 +3,7 @@ from app.db.client import db
 from pydantic import BaseModel, EmailStr
 from bson import ObjectId
 import bcrypt
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -36,15 +37,19 @@ async def register_user(data: RegisterRequest):
     if existing_user:
         raise HTTPException(status_code=400, detail="El correo ya está registrado")
 
-    # Hashing
+    # Hashing de contraseña
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(data.password.encode("utf-8"), salt).decode("utf-8")
+
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
     new_user = {
         "name": data.name,
         "email": data.email,
         "passwordHash": hashed_password,
-        "orders": []
+        "orders": [],
+        "createdAt": now,
+        "updatedAt": now
     }
 
     result = await db.users.insert_one(new_user)

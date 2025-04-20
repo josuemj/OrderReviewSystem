@@ -18,12 +18,31 @@ def authenticate_user(email: str, password: str):
     except Exception as e:
         print("Error de conexión:", e)
         return None
+    
+def register_user(name: str, email: str, password: str):
+    try:
+        response = requests.post(
+            f"{API_URL}/register",
+            json={
+                "name": name,
+                "email": email,
+                "password": password
+            }
+        )
+        if response.status_code == 200:
+            return {"success": True, "data": response.json()}
+        else:
+            # Captura el mensaje de error del backend
+            return {
+                "success": False,
+                "detail": response.json().get("detail", "Error desconocido")
+            }
+    except Exception as e:
+        return {"success": False, "detail": str(e)}
+
 
 def get_all_restaurants():
     #TODO: R de restaurants
-    pass
-
-def regist_user(email: str, password: str):
     pass
 
 def get_top_rated_restaurants(limit=10):
