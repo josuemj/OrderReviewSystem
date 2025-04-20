@@ -23,6 +23,8 @@ def get_all_restaurants():
     #TODO: R de restaurants
     pass
 
+def regist_user(email: str, password: str):
+    pass
 
 def get_top_rated_restaurants(limit=10):
     try:

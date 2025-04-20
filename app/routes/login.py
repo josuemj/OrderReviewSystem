@@ -1,10 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from app.db.client import db
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from bson import ObjectId
 import bcrypt
 
 router = APIRouter()
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
 
 class LoginRequest(BaseModel):
     email: str
@@ -22,4 +27,31 @@ async def login_user(credentials: LoginRequest):
         "email": user["email"],
         "name": user["name"],
         "orders": user.get("orders", [])  # por si no tiene pedidos aún
+    }
+
+@router.post("/register")
+async def register_user(data: RegisterRequest):
+    # Verifica si el usuario ya existe
+    existing_user = await db.users.find_one({"email": data.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="El correo ya está registrado")
+
+    # Hashing
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(data.password.encode("utf-8"), salt).decode("utf-8")
+
+    new_user = {
+        "name": data.name,
+        "email": data.email,
+        "passwordHash": hashed_password,
+        "orders": []
+    }
+
+    result = await db.users.insert_one(new_user)
+
+    return {
+        "message": "Usuario registrado exitosamente",
+        "id": str(result.inserted_id),
+        "email": data.email,
+        "name": data.name
     }
