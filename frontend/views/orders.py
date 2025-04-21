@@ -12,7 +12,7 @@ def render():
     if not orders:
         st.info("No tienes órdenes registradas.")
         return
-
+    st.subheader(f"Tienes {len(orders)} ordenes")
     for order in orders:
         # Convertir fecha
         created_at = datetime.fromisoformat(order["createdAt"]).strftime("%d/%m/%Y %H:%M")
