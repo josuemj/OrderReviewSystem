@@ -9,3 +9,7 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 @router.post("/")
 async def create_order(order: CreateOrder):
     return await crud.create_order(order)
+
+@router.get("/user/{user_id}")
+async def get_orders_by_user(user_id: str):
+    return await crud.get_orders_with_menu_names(user_id)

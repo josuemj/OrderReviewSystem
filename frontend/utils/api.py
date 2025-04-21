@@ -119,7 +119,6 @@ def get_menu_items_by_restaurant(restaurant_id: str):
     except Exception as e:
         print("Error obteniendo platillos del restaurante:", e)
         return []
-
 """
 orders
 """
@@ -132,5 +131,21 @@ def set_order(data: dict):
         print("Error al crear orden:", e)
         return False
 
-def get_orders_by_user(userId : str):
+def get_orders_by_user(userId: str):
+    try:
+        response = requests.get(f"{API_URL}/orders/user/{userId}")
+        if response.status_code == 200:
+            return response.json()  # Devuelve la lista de órdenes
+        else:
+            print("Error al obtener órdenes:", response.status_code)
+            return []
+    except Exception as e:
+        print("Error al conectar con la API:", e)
+        return []
+
+def delete_order(order_id : str):
     pass
+
+def update_order():
+    pass
+

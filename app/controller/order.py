@@ -7,7 +7,7 @@ from app.db.client import db
 from bson import ObjectId
 from datetime import datetime
 from models.order import CreateOrder
-
+from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
 
 async def create_order(order_data: CreateOrder):
@@ -22,7 +22,7 @@ async def create_order(order_data: CreateOrder):
             }
             for item in order_data.items
         ],
-        "status": "en preparación",
+        "status": "pendiente",
         "total": order_data.total,
         "platform": "Stratus",
         "createdAt": datetime.utcnow(),
@@ -31,3 +31,50 @@ async def create_order(order_data: CreateOrder):
 
     result = await db["orders"].insert_one(order_dict)
     return {"message": "Orden creada con éxito", "order_id": str(result.inserted_id)}
+
+orders_collection = db["orders"]
+
+async def get_orders_with_menu_names(user_id: str):
+    pipeline = [
+        {"$match": {"userId": ObjectId(user_id)}},
+        {"$unwind": "$items"},
+        {
+            "$lookup": {
+                "from": "menu_items",
+                "localField": "items.menuItemId",
+                "foreignField": "_id",
+                "as": "itemDetails"
+            }
+        },
+        {"$unwind": "$itemDetails"},
+        {
+            "$group": {
+                "_id": "$_id",
+                "userId": {"$first": "$userId"},
+                "restaurantId": {"$first": "$restaurantId"},
+                "status": {"$first": "$status"},
+                "total": {"$first": "$total"},
+                "createdAt": {"$first": "$createdAt"},
+                "updatedAt": {"$first": "$updatedAt"},
+                "items": {
+                    "$push": {
+                        "menuItemId": "$items.menuItemId",
+                        "quantity": "$items.quantity",
+                        "price": "$items.price",
+                        "name": "$itemDetails.name"
+                    }
+                }
+            }
+        }
+    ]
+
+    results = await orders_collection.aggregate(pipeline).to_list(length=None)
+
+    for order in results:
+        order["_id"] = str(order["_id"])
+        order["userId"] = str(order["userId"])
+        order["restaurantId"] = str(order["restaurantId"])
+        for item in order["items"]:
+            item["menuItemId"] = str(item["menuItemId"])
+
+    return results
