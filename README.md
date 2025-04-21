@@ -152,6 +152,9 @@ pip install -r requirements.txt
 # Ejecutar el servidor
 uvicorn main:app --reload
 
+# Ejecutar front end 
+streamlit run frontend/main.py
+
 # Ejecutar pruebas
 pytest -s app\test\restaurants.py
 ```
