@@ -13,3 +13,8 @@ async def create_order(order: CreateOrder):
 @router.get("/user/{user_id}")
 async def get_orders_by_user(user_id: str):
     return await crud.get_orders_with_menu_names(user_id)
+
+@router.delete("/{order_id}")
+async def delete_order(order_id: str):
+    success = await crud.delete_order_by_id(order_id)
+    return {"success": success}

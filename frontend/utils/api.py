@@ -143,8 +143,13 @@ def get_orders_by_user(userId: str):
         print("Error al conectar con la API:", e)
         return []
 
-def delete_order(order_id : str):
-    pass
+def delete_order(order_id: str):
+    try:
+        response = requests.delete(f"{API_URL}/orders/{order_id}")
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al eliminar orden:", e)
+        return False
 
 def update_order():
     pass

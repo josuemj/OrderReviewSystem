@@ -78,3 +78,11 @@ async def get_orders_with_menu_names(user_id: str):
             item["menuItemId"] = str(item["menuItemId"])
 
     return results
+
+async def delete_order_by_id(order_id: str):
+    try:
+        result = await orders_collection.delete_one({"_id": ObjectId(order_id)})
+        return result.deleted_count == 1
+    except Exception as e:
+        print("Error al eliminar orden:", e)
+        return False

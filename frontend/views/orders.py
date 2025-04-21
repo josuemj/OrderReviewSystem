@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api import get_orders_by_user
+from utils.api import get_orders_by_user, delete_order
 from datetime import datetime
 
 def render():
@@ -26,3 +26,17 @@ def render():
 
             st.markdown("---")
             st.caption(f"🕒 Última actualización: {datetime.fromisoformat(order['updatedAt']).strftime('%d/%m/%Y %H:%M')}")
+
+            if status == "pendiente":
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("❌ Cancelar", key=f"cancel_{order['_id']}"):
+                        if delete_order(order_id=order["_id"]):
+                            st.success("Orden cancelada correctamente")
+                            st.rerun() 
+                        else:
+                            st.error("Error al cancelar la orden")
+                        
+                # with col2:
+                #     if st.button("♻️ Actualizar", key=f"update_{order['_id']}"):
+                #         st.info("Función actualizar aún no implementada") 
