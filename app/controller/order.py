@@ -86,3 +86,26 @@ async def delete_order_by_id(order_id: str):
     except Exception as e:
         print("Error al eliminar orden:", e)
         return False
+
+async def update_order_by_id(order_id: str, payload):
+    try:
+        result = await orders_collection.update_one(
+            {"_id": ObjectId(order_id)},
+            {
+                "$set": {
+                    "items": [
+                        {
+                            "menuItemId": ObjectId(item.menuItemId),
+                            "quantity": item.quantity,
+                            "price": item.price
+                        } for item in payload.items
+                    ],
+                    "total": payload.total,
+                    "updatedAt": datetime.utcnow()
+                }
+            }
+        )
+        return result.modified_count == 1
+    except Exception as e:
+        print("Error al actualizar orden:", e)
+        return False

@@ -151,6 +151,11 @@ def delete_order(order_id: str):
         print("Error al eliminar orden:", e)
         return False
 
-def update_order():
-    pass
+def update_order(data: dict):
+    try:
+        response = requests.put(f"{API_URL}/orders/{data['orderId']}", json=data)
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al actualizar orden:", e)
+        return False
 

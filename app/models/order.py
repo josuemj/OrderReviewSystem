@@ -11,3 +11,12 @@ class CreateOrder(BaseModel):
     restaurantId: str
     items: List[OrderItem]
     total: float
+
+class UpdateItem(BaseModel):
+    menuItemId: str
+    quantity: int
+    price: float
+
+class UpdateOrderPayload(BaseModel):
+    items: List[UpdateItem]
+    total: float
