@@ -1,7 +1,7 @@
 import streamlit as st
 from session_state import init_session
 from views import login, home, orders, reviews, profile
-
+from views.admin import restaurants, stats, orders_manager
 # Inicializa variables de sesión
 init_session()
 
@@ -14,6 +14,7 @@ def main():
 
             if selected == "🏠 Home":
                 home.render()
+                
             elif selected == "📦 Órdenes":
                 orders.render()
             elif selected == "📝 Reseñas":
@@ -30,14 +31,14 @@ def main():
             selected = st.sidebar.radio("Ir a:", ["🏠 Restaurantes", "📦 Órdenes", "📝 Stats"])
 
             if selected == "🏠 Restaurantes":
-                st.title("Gestionar restaurantes")
-                st.text("CRUD restaurante")
+                restaurants.render()
+                
             elif selected == "📦 Órdenes":
-                st.title("Gestor de ordenes")
-                st.text("Cambiar de estado ordenes")
+                orders_manager.render()
+                
             elif selected == "📝 Stats":
-                st.title("Stats")
-                st.text("Stas ventas platillos etc")
+                stats.render()
+
                 
             if st.sidebar.button("Cerrar sesión", key="logout_sidebar"):
                 st.session_state.logged_in = False
