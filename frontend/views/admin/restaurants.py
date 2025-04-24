@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.api import get_all_restaurants
 
 def render():
     st.title("Gestionar restaurantes")
@@ -34,6 +35,12 @@ def render():
 
     elif opcion == "📋 Ver restaurantes":
         st.subheader("Lista de restaurantes")
+        restaurants = get_all_restaurants()
+        for r in restaurants:
+            with st.expander(f"{r['name']}"):
+                st.markdown(f"📍 Ubicación: {r["location"]["address"]}")
+
+        
 
     elif opcion == "🔄 Actualizar datos":
         st.subheader("Actualizar datos de un restaurante")
