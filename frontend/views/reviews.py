@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api import get_all_reviews, create_review, update_review, delete_review
+from utils.api import get_all_reviews, create_review, update_review, delete_review, get_orders_by_user, get_all_restaurants
 from datetime import datetime
 
 def render():
@@ -15,8 +15,7 @@ def render():
         st.session_state.review_page = 1
 
     if st.button("➕ Nueva Reseña"):
-        with st.modal("Crear Reseña"):
-            form_review(None, user_id)
+        create_review_dialog(user_id)
 
     st.markdown("---")
     st.subheader("📋 Tus Reseñas")
@@ -62,7 +61,7 @@ def form_review(review, user_id):
     st.text(f"🧾 ID de la Orden: {review['orderId']}")
     st.text(f"🍽️ ID del Restaurante: {review['restaurantId']}")
     comment = st.text_input("Commentario", value=review["comment"] if is_edit else "")
-    rating = st.slider("Calificación (1-5)", min_value=1.0, max_value=5.0, value=review["rating"] if is_edit else 5.0)
+    rating = st.slider("Calificación (1-5)", min_value=1.0, max_value=5.0, value=review["rating"] if is_edit else 5.0, step=0.5)
 
     if st.button("Guardar"):
         data = {
@@ -110,3 +109,51 @@ def confirm_delete_dialog():
                 st.rerun()
             else:
                 st.error("Error al eliminar la reseña.")
+
+
+@st.dialog("➕ Crear nueva reseña")
+def create_review_dialog(user_id):
+    restaurants = get_all_restaurants()
+    if not restaurants:
+        st.error("No hay restaurantes disponibles.")
+        return
+
+    restaurant_options = {r["name"]: r["_id"] for r in restaurants}
+    selected_restaurant_name = st.selectbox("🍽️ Selecciona un restaurante", list(restaurant_options.keys()))
+    selected_restaurant_id = restaurant_options[selected_restaurant_name]
+
+    # Obtener y filtrar órdenes del usuario
+    user_orders = get_orders_by_user(user_id)
+    filtered_orders = [o for o in user_orders if o.get("restaurantId") == selected_restaurant_id]
+
+    if not filtered_orders:
+        st.warning("No tienes órdenes en este restaurante.")
+        return
+
+    order_options = {f"#{o['_id']} - {o.get('date', '')[:10]}": o["_id"] for o in filtered_orders}
+    selected_order_label = st.selectbox("🧾 Selecciona una orden", list(order_options.keys()))
+    selected_order_id = order_options[selected_order_label]
+
+    # Ingreso de campos restantes
+    comment = st.text_input("✍️ Comentario")
+    rating = st.slider("⭐ Calificación (1-5)", min_value=1.0, max_value=5.0, value=5.0, step=0.5)
+
+    if st.button("Guardar"):
+        now = datetime.utcnow().isoformat()
+
+        data = {
+            "userId": user_id,
+            "comment": comment,
+            "rating": rating,
+            "orderId": selected_order_id,
+            "restaurantId": selected_restaurant_id,
+            "createdAt": now,
+            "updatedAt": now
+        }
+
+        result = create_review(data)
+        if result:
+            st.success("Reseña creada exitosamente.")
+            st.rerun()
+        else:
+            st.error("No se pudo crear la reseña.")
