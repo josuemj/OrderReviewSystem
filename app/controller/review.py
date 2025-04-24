@@ -12,8 +12,12 @@ async def create_review(data):
     result = await db.reviews.insert_one(data)
     return str(result.inserted_id)
 
-async def get_all_reviews(skip: int = 0, limit: int = 10):
-    cursor = db.reviews.find().skip(skip).limit(limit)
+async def get_all_reviews(skip: int = 0, limit: int = 10, user_id: str = None):
+    query = {}
+    if user_id:
+        query["userId"] = user_id
+
+    cursor = db.reviews.find(query).skip(skip).limit(limit)
     results = []
 
     async for r in cursor:

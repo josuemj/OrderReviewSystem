@@ -6,6 +6,10 @@ load_dotenv()
 
 API_URL = os.getenv("BACKEND_URI", "http://localhost:8000").rstrip("/")
 
+"""
+Login
+"""
+
 def authenticate_user(email: str, password: str):
     try:
         response = requests.post(
@@ -40,6 +44,9 @@ def register_user(name: str, email: str, password: str):
     except Exception as e:
         return {"success": False, "detail": str(e)}
 
+"""
+Home
+"""
 
 def get_all_restaurants():
     try:
@@ -71,15 +78,24 @@ def get_avg_rating_by_restaurant(restaurant_id: str):
         print("Error al obtener rating promedio:", e)
         return None
 
-def get_all_reviews(page: int, limit: int = 10):
+"""
+Reviews
+"""
+
+def get_all_reviews(page: int, limit: int = 10, user_id=None):
     try:
-        response = requests.get(f"{API_URL}/reviews", params={"page": page, "limit": limit})
+        params = {"page": page, "limit": limit}
+        if user_id:
+            params["user_id"] = user_id  
+
+        response = requests.get(f"{API_URL}/reviews", params=params)
         if response.status_code == 200:
             return response.json()
         return []
     except Exception as e:
         print("Error paginando reseñas:", e)
         return []
+
 
 def create_review(data: dict):
     try:

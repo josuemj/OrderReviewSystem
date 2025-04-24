@@ -21,16 +21,16 @@ def render():
     st.markdown("---")
     st.subheader("📋 Tus Reseñas")
 
-    reviews = get_all_reviews(st.session_state.review_page)
+    reviews = get_all_reviews(st.session_state.review_page, user_id=user_id)
 
     if not reviews:
         st.info("No hay reseñas para mostrar.")
         return
 
     for review in reviews:
-        with st.expander(f"{review.get('title', 'Sin título')} - ⭐ {review['rating']}"):
+        with st.expander(f"{review.get('comment', '')} - ⭐ {review['rating']}"):
             st.write(f"📍 Restaurante: {review.get('restaurantId', 'N/D')}")
-            st.write(f"✍️ Descripción: {review.get('content', '')}")
+            st.write(f"✍️ Rating: {review.get('rating', '')}")
             st.write(f"🕒 Fecha: {review.get('createdAt', '')[:10]}")
 
             col1, col2 = st.columns(2)
