@@ -175,3 +175,41 @@ def update_order(data: dict):
         print("Error al actualizar orden:", e)
         return False
 
+"""
+Files (Upload and Download)
+"""
+
+def upload_file_to_collection(collection: str, filepath: str):
+    try:
+        with open(filepath, "rb") as f:
+            files = {"file": (os.path.basename(filepath), f)}
+            response = requests.post(f"{API_URL}/upload-file", params={"collection": collection}, files=files)
+        if response.status_code == 200:
+            return {"success": True, "output": response.json()}
+        else:
+            return {"success": False, "detail": response.json().get("detail", "Error desconocido")}
+    except Exception as e:
+        return {"success": False, "detail": str(e)}
+
+def download_collection_file(collection: str, file_format: str):
+    try:
+        params = {"collection": collection, "format": file_format}
+        response = requests.get(f"{API_URL}/download-files", params=params, stream=True)
+        
+        if response.status_code == 200:
+            filename = response.headers.get("content-disposition", "").split("filename=")[-1].replace('"', '')
+            if not filename:
+                filename = f"{collection}.{file_format}"
+
+            download_path = os.path.join("downloads", filename)
+            os.makedirs(os.path.dirname(download_path), exist_ok=True)
+
+            with open(download_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
+            return {"success": True, "path": download_path}
+        else:
+            return {"success": False, "detail": response.json().get("detail", "Error desconocido")}
+    except Exception as e:
+        return {"success": False, "detail": str(e)}
