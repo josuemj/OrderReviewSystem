@@ -17,3 +17,7 @@ class RestaurantOut(RestaurantBase):
     menu: Optional[List[str]] = []
     createdAt: datetime
     updatedAt: datetime
+    
+class AddCategoriesRequest(BaseModel):
+    restaurant_id: str
+    categories: List[str]

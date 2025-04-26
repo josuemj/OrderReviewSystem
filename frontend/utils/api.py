@@ -45,7 +45,7 @@ def register_user(name: str, email: str, password: str):
         return {"success": False, "detail": str(e)}
 
 """
-Home
+Restaurants
 """
 
 def get_all_restaurants():
@@ -76,6 +76,23 @@ def get_avg_rating_by_restaurant(restaurant_id: str):
         return None
     except Exception as e:
         print("Error al obtener rating promedio:", e)
+        return None
+
+def create_new_categories_to_restaurant(restaurant_id: str, categories: list):
+    try:
+        payload = {
+            "restaurant_id": restaurant_id,
+            "categories": categories
+        }
+        response = requests.post(f"{API_URL}/restaurants/categories", json=payload)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error al crear categorías:", response.status_code, response.text)
+            return None
+    except Exception as e:
+        print("Error al conectar con la API:", e)
         return None
 
 """

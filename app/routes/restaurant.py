@@ -2,7 +2,10 @@ from fastapi import APIRouter, Query
 from typing import List
 from typing import Optional
 from app.controller import restaurant as crud
-
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from app.schemas.restaurant import AddCategoriesRequest
 router = APIRouter(prefix="/restaurants", tags=["Restaurants"])
 
 #TODO: CRUD Y DEMAS RUTAS FALTAN
@@ -18,3 +21,7 @@ async def avg_rating(id: Optional[str] = Query(None)):
 @router.get("/")
 async def list_all_restaurants():
     return await crud.get_all_restaurants()
+
+@router.post("/categories")
+async def add_categories(request: AddCategoriesRequest):
+    return await crud.add_categories_restaurant(request)

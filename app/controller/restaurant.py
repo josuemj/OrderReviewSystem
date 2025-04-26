@@ -98,3 +98,25 @@ async def get_all_restaurants():
     for r in restaurants:
         r["_id"] = str(r["_id"])
     return restaurants
+
+async def add_categories_restaurant(request):
+    restaurant_id = request.restaurant_id
+    categories_to_add = request.categories
+
+    # Make sure the ID is valid
+    if not ObjectId.is_valid(restaurant_id):
+        return {"error": "Invalid restaurant ID"}
+
+    result = await db.restaurants.update_one(
+        {"_id": ObjectId(restaurant_id)},
+        {
+            "$addToSet": {
+                "categories": { "$each": categories_to_add }
+            }
+        }
+    )
+
+    if result.modified_count:
+        return {"message": "Categories added successfully"}
+    else:
+        return {"message": "No changes made (maybe categories already existed)"}
