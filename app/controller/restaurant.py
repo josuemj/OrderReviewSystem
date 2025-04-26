@@ -120,3 +120,25 @@ async def add_categories_restaurant(request):
         return {"message": "Categories added successfully"}
     else:
         return {"message": "No changes made (maybe categories already existed)"}
+
+async def remove_categories_restaurant(request):
+    restaurant_id = request.restaurant_id
+    categories_to_remove = request.categories
+
+    if not ObjectId.is_valid(restaurant_id):
+        return {"error": "Invalid restaurant ID"}
+
+    result = await db.restaurants.update_one(
+        {"_id": ObjectId(restaurant_id)},
+        {
+            "$pull": {
+                "categories": { "$in": categories_to_remove }
+            }
+        }
+    )
+
+    if result.modified_count:
+        return {"message": "Categories removed successfully"}
+    else:
+        return {"message": "No changes made (maybe categories were not found)"}
+

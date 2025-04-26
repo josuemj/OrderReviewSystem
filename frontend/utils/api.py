@@ -95,6 +95,24 @@ def create_new_categories_to_restaurant(restaurant_id: str, categories: list):
         print("Error al conectar con la API:", e)
         return None
 
+def remove_categories_from_restaurant(restaurant_id: str, categories: list):
+    try:
+        payload = {
+            "restaurant_id": restaurant_id,
+            "categories": categories
+        }
+        response = requests.delete(f"{API_URL}/restaurants/categories", json=payload)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error al eliminar categorías:", response.status_code, response.text)
+            return None
+    except Exception as e:
+        print("Error al conectar con la API:", e)
+        return None
+
+
 """
 Reviews
 """

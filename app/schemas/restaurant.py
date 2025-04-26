@@ -21,3 +21,7 @@ class RestaurantOut(RestaurantBase):
 class AddCategoriesRequest(BaseModel):
     restaurant_id: str
     categories: List[str]
+    
+class RemoveCategoriesRequest(BaseModel):
+    restaurant_id: str
+    categories: List[str]
