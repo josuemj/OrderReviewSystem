@@ -206,6 +206,18 @@ def get_orders_by_user(userId: str):
         print("Error al conectar con la API:", e)
         return []
 
+def get_sorted_orders_by_user(user_id: str):
+    try:
+        response = requests.get(f"{API_URL}/orders/usersortorders/{user_id}")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error al obtener órdenes ordenadas:", response.status_code)
+            return []
+    except Exception as e:
+        print("Error al conectar con la API:", e)
+        return []
+
 def delete_order(order_id: str):
     try:
         response = requests.delete(f"{API_URL}/orders/{order_id}")
@@ -221,6 +233,26 @@ def update_order(data: dict):
     except Exception as e:
         print("Error al actualizar orden:", e)
         return False
+
+def get_orders_by_user_and_date(user_id: str, start_date: str, end_date: str):
+    try:
+        params = {
+            "user_id": user_id,
+            "start_date": start_date,
+            "end_date": end_date
+        }
+        response = requests.get(f"{API_URL}/orders/by-user-and-date", params=params)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error al obtener órdenes por rango de fechas:", response.status_code)
+            return []
+    except Exception as e:
+        print("Error al conectar con la API:", e)
+        return []
+
+
+
 
 """
 Files (Upload and Download)
