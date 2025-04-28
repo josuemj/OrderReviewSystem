@@ -144,3 +144,46 @@ def fix_objectid(doc):
         return str(doc)
     else:
         return doc
+
+async def get_orders_with_menu_names_sorted(user_id: str):
+    pipeline = [
+        {"$match": {"userId": ObjectId(user_id)}},
+        {"$unwind": "$items"},
+        {
+            "$lookup": {
+                "from": "menu_items",
+                "localField": "items.menuItemId",
+                "foreignField": "_id",
+                "as": "itemDetails"
+            }
+        },
+        {"$unwind": "$itemDetails"},
+        {
+            "$group": {
+                "_id": "$_id",
+                "userId": {"$first": "$userId"},
+                "restaurantId": {"$first": "$restaurantId"},
+                "status": {"$first": "$status"},
+                "total": {"$first": "$total"},
+                "createdAt": {"$first": "$createdAt"},
+                "updatedAt": {"$first": "$updatedAt"},
+                "items": {
+                    "$push": {
+                        "menuItemId": "$items.menuItemId",
+                        "quantity": "$items.quantity",
+                        "price": "$items.price",
+                        "name": "$itemDetails.name"
+                    }
+                }
+            }
+        },
+        {
+            "$sort": {
+                "total": -1 
+            }
+        }
+    ]
+
+    orders = await db.orders.aggregate(pipeline).to_list(length=None)
+    return fix_objectid(orders)  # Usamos el fix para ObjectId
+

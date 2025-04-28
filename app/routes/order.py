@@ -31,3 +31,7 @@ async def get_orders_by_user_and_date(
     end_date: str = Query(..., description="Fecha de fin en formato ISO (YYYY-MM-DD)")
 ):
     return await crud.get_orders_by_user_and_date(user_id, start_date, end_date)
+
+@router.get("/usersortorders/{user_id}")
+async def get_orders_by_user_sorted(user_id: str):
+    return await crud.get_orders_with_menu_names_sorted(user_id)
