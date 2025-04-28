@@ -170,6 +170,18 @@ def get_menu_items_by_restaurant(restaurant_id: str):
     except Exception as e:
         print("Error obteniendo platillos del restaurante:", e)
         return []
+
+def get_top_selling_menu_items(top: int = 10):
+    try:
+        response = requests.get(f"{API_URL}/menu-items/top", params={"limit": top})  # <--- aquí cambio "top" por "limit"
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error obteniendo platillos más vendidos:", e)
+        return []
+
+
 """
 orders
 """
