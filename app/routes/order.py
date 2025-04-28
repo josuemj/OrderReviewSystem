@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from app.controller import order as crud
 import sys
 import os
@@ -23,3 +23,11 @@ async def delete_order(order_id: str):
 async def update_order(order_id: str, payload: UpdateOrderPayload):
     success = await crud.update_order_by_id(order_id, payload)
     return {"success": success}
+
+@router.get("/by-user-and-date")
+async def get_orders_by_user_and_date(
+    user_id: str = Query(..., description="ID del usuario"),
+    start_date: str = Query(..., description="Fecha de inicio en formato ISO (YYYY-MM-DD)"),
+    end_date: str = Query(..., description="Fecha de fin en formato ISO (YYYY-MM-DD)")
+):
+    return await crud.get_orders_by_user_and_date(user_id, start_date, end_date)

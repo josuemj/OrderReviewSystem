@@ -109,3 +109,38 @@ async def update_order_by_id(order_id: str, payload):
     except Exception as e:
         print("Error al actualizar orden:", e)
         return False
+
+async def get_orders_by_user_and_date(user_id: str, start_date: str, end_date: str):
+    start_date_obj = datetime.fromisoformat(start_date.replace("Z", ""))
+    end_date_obj = datetime.fromisoformat(end_date.replace("Z", ""))
+
+    pipeline = [
+        {
+            "$addFields": {
+                "createdAtDate": {
+                    "$toDate": "$createdAt"
+                }
+            }
+        },
+        {
+            "$match": {
+                "userId": ObjectId(user_id),
+                "createdAtDate": {
+                    "$gte": start_date_obj,
+                    "$lte": end_date_obj
+                }
+            }
+        }
+    ]
+    orders = await db.orders.aggregate(pipeline).to_list(length=None)
+    return fix_objectid(orders)
+
+def fix_objectid(doc):
+    if isinstance(doc, list):
+        return [fix_objectid(item) for item in doc]
+    elif isinstance(doc, dict):
+        return {key: fix_objectid(value) for key, value in doc.items()}
+    elif isinstance(doc, ObjectId):
+        return str(doc)
+    else:
+        return doc
