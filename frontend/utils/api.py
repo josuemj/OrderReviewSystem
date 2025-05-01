@@ -292,3 +292,42 @@ def download_collection_file(collection: str, file_format: str):
             return {"success": False, "detail": response.json().get("detail", "Error desconocido")}
     except Exception as e:
         return {"success": False, "detail": str(e)}
+    
+"""
+Users (admin)
+"""
+def get_all_users(page: int = 1, limit: int = 10):
+    try:
+        response = requests.get(f"{API_URL}/users", params={"page": page, "limit": limit})
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error al obtener usuarios:", e)
+        return []
+
+def create_user(data: dict):
+    try:
+        response = requests.post(f"{API_URL}/users", json=data)
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al crear usuario:", e)
+        return False
+
+def update_user(user_id: str, data: dict):
+    try:
+        print("🚨 Payload enviado a PUT /users:", data)  # Añade esto
+        response = requests.put(f"{API_URL}/users/{user_id}", json=data)
+        print("💥 Respuesta:", response.status_code, response.text)  # Y esto
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al actualizar usuario:", e)
+        return False
+
+def delete_user(user_id: str):
+    try:
+        response = requests.delete(f"{API_URL}/users/{user_id}")
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al eliminar usuario:", e)
+        return False

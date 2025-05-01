@@ -1,16 +1,19 @@
 from pydantic import BaseModel, EmailStr
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime
 
-class UserBase(BaseModel):
+class UserCreate(BaseModel):
     name: str
     email: EmailStr
+    passwordHash: str
 
-class UserCreate(UserBase):
-    password: str
+class UserUpdate(BaseModel):
+    name: Optional[str]
+    email: Optional[EmailStr]
 
-class UserOut(UserBase):
+class UserOut(BaseModel):
     id: str
-    orders: Optional[List[str]] = []
-    createdAt: datetime
-    updatedAt: datetime
+    name: str
+    email: EmailStr
+    createdAt: Optional[datetime]
+    updatedAt: Optional[datetime]
