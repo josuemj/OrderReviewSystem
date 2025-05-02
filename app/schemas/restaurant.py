@@ -11,6 +11,7 @@ class RestaurantBase(BaseModel):
     name: str
     location: Location
     categories: List[str]
+    menu: Optional[List[str]] = []
 
 class RestaurantOut(RestaurantBase):
     id: str

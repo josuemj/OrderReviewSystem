@@ -47,6 +47,23 @@ def register_user(name: str, email: str, password: str):
 """
 Restaurants
 """
+def create_restaurant(data: dict):
+    try:
+        response = requests.post(f"{API_URL}/restaurants/", json=data)
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except Exception as e:
+        print("Error al crear restaurante:", e)
+        return None
+
+def update_restaurant(restaurant_id: str, data: dict):
+    try:
+        response = requests.put(f"{API_URL}/restaurants/{restaurant_id}", json=data)
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al actualizar restaurante:", e)
+        return False
 
 def get_all_restaurants():
     try:

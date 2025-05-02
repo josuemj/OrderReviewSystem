@@ -7,7 +7,19 @@ from datetime import datetime
 from typing import Optional
 from fastapi import Query
 
-#TODO: CRUD Y DEMAS FUNCIONES FALTAN
+async def create_restaurant(data):
+    data["createdAt"] = datetime.utcnow()
+    data["updatedAt"] = datetime.utcnow()
+    result = await db.restaurants.insert_one(data)
+    return str(result.inserted_id)
+
+async def update_restaurant(restaurant_id, data):
+    data["updatedAt"] = datetime.utcnow()
+    result = await db.restaurants.update_one(
+        {"_id": ObjectId(restaurant_id)},
+        {"$set": data}
+    )
+    return result.modified_count
 
 async def get_top_rated_restaurants(limit: int = 10):
     pipeline = [
