@@ -191,6 +191,26 @@ def get_all_menu_items():
         print("Error obteniendo todos los platillos:", e)
         return []
 
+def create_menu_item(data, image_file):
+    try:
+        files = {
+            'image': (image_file.name, image_file, 'multipart/form-data')
+        }
+        payload = {
+            'restaurantId': data['restaurantId'],
+            'name': data['name'],
+            'description': data['description'],
+            'price': str(data['price']),
+        }
+        response = requests.post(f"{API_URL}/menu-items/", data=payload, files=files)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error al crear platillo:", response.status_code, response.text)
+            return None
+    except Exception as e:
+        print("Excepción al crear platillo:", e)
+        return None
 
 """
 orders

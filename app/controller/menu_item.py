@@ -1,8 +1,14 @@
 import sys
 import os
+from datetime import datetime
+from bson import ObjectId
+import uuid
+from bson import ObjectId
+import gridfs
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from bson import ObjectId
 from app.db.client import db
+
 
 def convert_objectid(doc):
     # Convierte los ObjectId a strings
@@ -72,3 +78,24 @@ async def get_all_menu_items():
         item["restaurantId"] = str(item["restaurantId"])  # si también es ObjectId
         items.append(item)
     return items
+
+async def create_menu_item(restaurant_id, name, description, price, image_file):
+    # Subir imagen a GridFS
+    file_id = ""
+
+    # Documento del platillo
+    new_item = {
+        "restaurantId": ObjectId(restaurant_id),
+        "name": name,
+        "description": description,
+        "price": price,
+        "image_file_id": file_id,
+        "createdAt": datetime.utcnow().isoformat(),
+        "updatedAt": datetime.utcnow().isoformat()
+    }
+
+    result = await db.menu_items.insert_one(new_item)
+    new_item["_id"] = str(result.inserted_id)
+    new_item["restaurantId"] = str(new_item["restaurantId"])
+    new_item["image_file_id"] = str(file_id)
+    return new_item

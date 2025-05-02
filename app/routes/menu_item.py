@@ -1,5 +1,11 @@
 from fastapi import APIRouter, Path, Query
 from app.controller import menu_item as crud
+from fastapi import UploadFile, File, Form
+from bson import ObjectId
+import gridfs
+from fastapi.responses import StreamingResponse
+import sys
+import os
 
 router = APIRouter(prefix="/menu-items", tags=["Menu Items"])
 
@@ -15,4 +21,18 @@ async def get_top_menu_items(limit: int = Query(10, description="How many top it
 async def get_all_menu_items():
     return await crud.get_all_menu_items()
 
-
+@router.post("/")
+async def create_menu_item(
+    restaurantId: str = Form(...),
+    name: str = Form(...),
+    description: str = Form(...),
+    price: float = Form(...),
+    image: UploadFile = File(...)
+):
+    return await crud.create_menu_item(
+        restaurant_id=restaurantId,  
+        name=name,
+        description=description,
+        price=price,
+        image_file=image
+    )
