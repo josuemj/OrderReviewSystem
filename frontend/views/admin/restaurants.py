@@ -80,7 +80,12 @@ def render():
         restaurants = get_all_restaurants()
         for r in restaurants:
             with st.expander(f"{r['name']}"):
-                st.markdown(f"📍 Ubicación: {r["location"]["address"]}")
+                st.markdown(f"📍 **Dirección:** {r['location']['address']}, {r['location']['city']}")
+                st.markdown(f"🌍 **Coordenadas:** Lat {r['location']['coordinates']['lat']}, Lng {r['location']['coordinates']['lng']}")
+                st.markdown(f"🏷️ **Categorías:** {', '.join(r['categories']) if r['categories'] else 'Ninguna'}")
+                st.markdown(f"📋 **Ítems en el menú:** {len(r['menu'])}")
+                st.markdown(f"🕒 **Creado en:** {r['createdAt']}")
+                st.markdown(f"🔄 **Última actualización:** {r['updatedAt']}")
 
         
 
