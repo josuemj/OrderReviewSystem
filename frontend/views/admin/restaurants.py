@@ -171,4 +171,88 @@ def render():
 
     elif opcion == "🔄 Actualizar datos":
         st.subheader("Actualizar datos de un restaurante")
-        st.button("Actualizar")
+        restaurants = get_all_restaurants()
+        menu_items = get_all_menu_items()
+
+        menu_options = {
+            f"{item['name']} ({item['_id']})": item['_id']
+            for item in menu_items
+        }
+
+
+        for re in restaurants:
+                with st.expander(f"{re['name']}"):
+                    edit_name = st.text_input("Nombre", value=re["name"], key=f"edit_nombre_{re['_id']}")
+                    edit_address = st.text_input("Dirección", value=re['location']['address'], key=f"edit_direccion_{re['_id']}")
+                    edit_city = st.text_input("Ciudad", value=re['location']['city'], key=f"edit_ciudad_{re['_id']}")
+
+                    st.markdown("### Ubicación del restaurante")
+
+
+                    # Mostrar mapa con marcador actual
+                    view_state = pdk.ViewState(
+                        longitude=re['location']['coordinates']['lng'],
+                        latitude=re['location']['coordinates']["lat"],
+                        zoom=14
+                    )
+
+                    layer = pdk.Layer(
+                        "ScatterplotLayer",
+                        data=[{
+                            "position": [re['location']['coordinates']['lng'], re['location']['coordinates']["lat"]],
+                            "color": [255, 0, 0],
+                            "radius": 100
+                        }],
+                        get_position="position",
+                        get_color="color",
+                        get_radius="radius"
+                    )
+
+                    st.pydeck_chart(pdk.Deck(
+                        map_style="mapbox://styles/mapbox/streets-v11",
+                        initial_view_state=view_state,
+                        layers=[layer]
+                    ))
+
+                    # Inputs de coordenadas actualizables
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        lat = st.number_input("Latitud", value=re['location']['coordinates']["lat"], key=f"lat_input_{re['_id']}")
+                    with col2:
+                        lng = st.number_input("Longitud", value=re['location']['coordinates']['lng'], key=f"lng_input_{re['_id']}")
+                    
+                    categories = st.multiselect("Categorías", ALL_CATEGORIES, key=f"edit_categorias_{re['_id']}", default=re.get("categories", []),)
+
+                    selected_items = st.multiselect(
+                        "Selecciona ítems del menú para este restaurante",
+                        options=list(menu_options.keys()),
+                        default=[
+                            f"{item['name']} ({item['_id']})"
+                            for item in menu_items if item['_id'] in re.get("menu", [])
+                        ],
+                        key=f"edit_menu_{re['_id']}"
+                    )
+                    selected_menu_ids = [menu_options[label] for label in selected_items]
+                    
+                    if st.button("Actualizar", key=f"keep_key_{re['_id']}"):
+                        data = {
+                            "name": edit_name,
+                            "location": {
+                                "address": edit_address,
+                                "city": edit_city,
+                                "coordinates": {
+                                    "lat": lat,
+                                    "lng": lng
+                                }
+                            },
+                            "categories": categories,
+                            "menu": selected_menu_ids
+                        }
+                        updated = update_restaurant(re['_id'], data)  
+                        if updated:
+                            st.success("Restaurante actualizado exitosamente")
+                            st.rerun()
+                        else:
+                            st.error("Error al actualizar restaurante")
+
+
