@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api import get_orders_by_user, delete_order, get_menu_items_by_restaurant, update_order
+from utils.api import get_orders_by_user, delete_order, get_menu_items_by_restaurant, update_order, get_orders_by_user_and_date
 from datetime import datetime
 
 def render():
@@ -41,6 +41,45 @@ def render():
                     if st.button("♻️ Actualizar", key=f"update_{order['_id']}"):
                         menu_items = get_menu_items_by_restaurant(order["restaurantId"])
                         show_update_order(order, menu_items)
+                        
+    #ordenes por fecha
+    if "mostrar_filtro_fecha" not in st.session_state:
+        st.session_state.mostrar_filtro_fecha = False
+
+    if st.button("📦 Ver órdenes por fecha"):
+        st.session_state.mostrar_filtro_fecha = not st.session_state.mostrar_filtro_fecha
+
+    if st.session_state.mostrar_filtro_fecha:
+        st.subheader("Filtrar órdenes por rango de fechas")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            start_date = st.date_input("Fecha de inicio")
+        with col2:
+            end_date = st.date_input("Fecha de fin")
+
+        if st.button("🔍 Filtrar"):
+            if not start_date or not end_date:
+                st.warning("Por favor selecciona ambas fechas.")
+            elif start_date > end_date:
+                st.error("La fecha de inicio no puede ser posterior a la fecha de fin.")
+            else:
+                orders_filtradas = get_orders_by_user_and_date(
+                    user_id=user_id,
+                    start_date=str(start_date),
+                    end_date=str(end_date)
+                )
+
+                if not orders_filtradas:
+                    st.info("No se encontraron órdenes para este usuario en el rango de fechas.")
+                else:
+                    st.success(f"Se encontraron {len(orders_filtradas)} órdenes.")
+                    for o in orders_filtradas:
+                        with st.expander(f"Orden {o['_id']}"):
+                            st.markdown(f"📅 Fecha: {o['createdAt']}")
+                            st.markdown(f"💲 Total: {o.get('total', 'N/A')}")
+                            for item in o["items"]:
+                                st.markdown(f"item -> {item["menuItemId"]} cantidad {item["quantity"]}")
 
 @st.dialog("Actualizar Orden")
 def show_update_order(order, menu_items):
