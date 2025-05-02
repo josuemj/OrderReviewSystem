@@ -11,3 +11,8 @@ async def get_menu_items_by_restaurant(restaurant_id: str):
 async def get_top_menu_items(limit: int = Query(10, description="How many top items to return")):
     return await crud.get_top_menu_items(limit)
 
+@router.get("/all")
+async def get_all_menu_items():
+    return await crud.get_all_menu_items()
+
+

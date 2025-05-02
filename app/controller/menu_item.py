@@ -63,3 +63,12 @@ async def get_top_menu_items(limit: int = 10):
 
     results = await db.orders.aggregate(pipeline).to_list(length=None)
     return results
+
+async def get_all_menu_items():
+    items_cursor = db.menu_items.find()
+    items = []
+    async for item in items_cursor:
+        item["_id"] = str(item["_id"])  # convertir ObjectId a string
+        item["restaurantId"] = str(item["restaurantId"])  # si también es ObjectId
+        items.append(item)
+    return items
