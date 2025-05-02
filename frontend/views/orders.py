@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api import get_orders_by_user, delete_order, get_menu_items_by_restaurant, update_order, get_orders_by_user_and_date
+from utils.api import get_orders_by_user, delete_order, get_menu_items_by_restaurant, update_order, get_orders_by_user_and_date, get_sorted_orders_by_user
 from datetime import datetime
 
 def render():
@@ -80,6 +80,22 @@ def render():
                             st.markdown(f"💲 Total: {o.get('total', 'N/A')}")
                             for item in o["items"]:
                                 st.markdown(f"item -> {item["menuItemId"]} cantidad {item["quantity"]}")
+    
+    if st.button("🔽 Ordenar por total (mayor a menor)"):
+        sorted_orders = get_sorted_orders_by_user(user_id)
+
+        if not sorted_orders:
+            st.info("No se encontraron órdenes para mostrar.")
+        else:
+            st.success(f"Se encontraron {len(sorted_orders)} órdenes ordenadas por total.")
+            for o in sorted_orders:
+                created_at = datetime.fromisoformat(o["createdAt"]).strftime("%d/%m/%Y %H:%M")
+                total = o.get("total", "N/A")
+
+                with st.expander(f"📅 {created_at} | 💰 Total: Q{total}"):
+                    st.markdown("### 🍽️ Detalles de la orden:")
+                    for item in o["items"]:
+                        st.markdown(f"- 🧾 Producto ID: `{item['menuItemId']}` — Cantidad: {item['quantity']}")
 
 @st.dialog("Actualizar Orden")
 def show_update_order(order, menu_items):
