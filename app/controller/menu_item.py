@@ -26,6 +26,10 @@ async def get_menu_items_by_restaurant_id(restaurant_id: str):
     items = await db.menu_items.find({"restaurantId": object_id}).to_list(length=None)
     return [convert_objectid(item) for item in items]
 
+async def get_total_items():
+    result = await db["menu_items"].count_documents({})
+    return result
+
 async def get_top_menu_items(limit: int = 10):
     pipeline = [
         {"$unwind": "$items"},

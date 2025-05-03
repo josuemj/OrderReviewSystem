@@ -10,6 +10,11 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 async def create_order(order: CreateOrder):
     return await crud.create_order(order)
 
+@router.get('/total')
+async def get_total_orders():
+    count = await crud.get_total_orders()
+    return {"total": count}
+
 @router.get("/user/{user_id}")
 async def get_orders_by_user(user_id: str):
     return await crud.get_orders_with_menu_names(user_id)

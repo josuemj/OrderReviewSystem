@@ -34,6 +34,10 @@ async def create_order(order_data: CreateOrder):
 
 orders_collection = db["orders"]
 
+async def get_total_orders():
+    result = await db["orders"].count_documents({})
+    return result
+
 async def get_orders_with_menu_names(user_id: str):
     pipeline = [
         {"$match": {"userId": ObjectId(user_id)}},

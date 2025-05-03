@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-from utils.api import get_top_selling_menu_items
+from utils.api import get_top_selling_menu_items, get_total_orders, get_total_items
 import random
 
 def render():
@@ -33,7 +33,16 @@ def render():
                 st.markdown("---")
         else:
             st.warning("No se encontraron datos.")
+        
+    st.markdown("## Stats counts")
     
+    col1, col2 = st.columns(2)
+                
+    with col1:
+        st.metric(label="Platillos totales", value=get_total_orders())
+    with col2:
+        st.metric(label="Ordenes Totales", value=get_total_items())
+
     st.markdown("# MONGOCHART")
 
     components.html("""

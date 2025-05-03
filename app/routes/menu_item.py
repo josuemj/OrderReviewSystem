@@ -9,6 +9,12 @@ import os
 
 router = APIRouter(prefix="/menu-items", tags=["Menu Items"])
 
+@router.get('/total')
+async def get_total_orders():
+    count = await crud.get_total_items()
+    return {"total": count}
+
+
 @router.get("/by-restaurant/{restaurant_id}")
 async def get_menu_items_by_restaurant(restaurant_id: str):
     return await crud.get_menu_items_by_restaurant_id(restaurant_id)
