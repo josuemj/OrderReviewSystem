@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from utils.api import get_top_selling_menu_items
 import random
 
@@ -32,6 +33,15 @@ def render():
                 st.markdown("---")
         else:
             st.warning("No se encontraron datos.")
+    
+    st.markdown("# MONGOCHART")
+
+    components.html("""
+        <iframe style="background: #21313C; border: none; border-radius: 0;
+        width: 100vw; height: 100vh; margin: 0; padding: 0;"
+        src="https://charts.mongodb.com/charts-project-0-bxbczlk/embed/dashboards?id=67f857d9-ca9f-4c92-8549-ae2da0147e33&theme=dark&autoRefresh=true&maxDataAge=3600&showTitleAndDesc=false&scalingWidth=scale&scalingHeight=scale">
+        </iframe>
+    """, height=1500) 
 
 def render_colored_title(title_text):
     colors = ["#FF5733", "#33FF57", "#3357FF", "#F333FF", "#FF33A6", "#33FFF3", "#FFC733"]

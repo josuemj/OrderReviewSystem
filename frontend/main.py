@@ -7,6 +7,8 @@ from views.admin import restaurants, stats, orders_manager, archivos, users, men
 init_session()
 
 def main():
+    st.set_page_config(layout="wide")
+
     if st.session_state.logged_in:
         if st.session_state.user["name"] != "admin":
             # Solo mostrar sidebar si está logueado
