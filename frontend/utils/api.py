@@ -65,6 +65,26 @@ def update_restaurant(restaurant_id: str, data: dict):
         print("Error al actualizar restaurante:", e)
         return False
 
+def get_restaurants_by_category(category: str):
+    try:
+        response = requests.get(f"{API_URL}/restaurants/by-category", params={"category": category})
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error al buscar por categoría:", e)
+        return []
+
+def get_categories():
+    try:
+        response = requests.get(f"{API_URL}/restaurants/categories")
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error al buscar por categoría:", e)
+        return []
+
 def get_all_restaurants():
     try:
         response = requests.get(f"{API_URL}/restaurants/")

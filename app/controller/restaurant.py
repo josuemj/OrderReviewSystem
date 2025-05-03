@@ -21,6 +21,19 @@ async def update_restaurant(restaurant_id, data):
     )
     return result.modified_count
 
+async def get_restaurants_by_category(category: str):
+    docs = await db.restaurants.find({"categories": category}).to_list(length=None)
+
+    cleaned_docs = []
+    for doc in docs:
+        doc["_id"] = str(doc["_id"])  # o usa doc.pop("_id", None) si no necesitas el ID
+        cleaned_docs.append(doc)
+
+    return cleaned_docs
+
+async def get_all_categories():
+    return await db.restaurants.distinct("categories")
+
 async def get_top_rated_restaurants(limit: int = 10):
     pipeline = [
         {
