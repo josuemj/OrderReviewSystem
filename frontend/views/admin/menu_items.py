@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image, delete_menu_item
-
+import time
 def render():
     st.title("🧾 Gestión de platillos")
 
@@ -10,7 +10,6 @@ def render():
         (
             "📋 Ver todos los platillos",
             "➕ Crear platillo",
-            "🗑️ Eliminar platillo",
             "✏️ Actualizar platillo"
         )
     )
@@ -20,6 +19,7 @@ def render():
     # Ver platillos
     if opcion == "📋 Ver todos los platillos":
         st.subheader("Listado completo de platillos")
+        st.write("Tambien puedes elimar al desplegar")
 
         platillos = get_all_menu_items()
         if not platillos:
@@ -45,6 +45,7 @@ def render():
                     if st.button(f"🗑️ Eliminar '{p['name']}'", key=p["_id"]):
                         if delete_menu_item(p["_id"]):
                             st.success("Platillo eliminado correctamente.")
+                            time.sleep(0.5) 
                             st.rerun()
                         else:
                             st.error("No se pudo eliminar el platillo.")
