@@ -1,7 +1,6 @@
 import streamlit as st
-from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item
+from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image
 
-API_URL = "http://localhost:8000" 
 def render():
     st.title("🧾 Gestión de platillos")
 
@@ -38,12 +37,11 @@ def render():
                     """
                     image_file_id = p.get("image_file_id")
                     if image_file_id:
-                        image_url = f"{API_URL}/menu-items/images/{image_file_id}"
+                        image_url = get_menu_image(p.get("image_file_id"))
+                        st.image(image_url)
                     else:
-                        image_url = "https://via.placeholder.com/400x300?text=Sin+imagen"
-                    st.image(image_url)
+                        st.write("Imagen del platillo no disponible por el momento")
 
-                                
                     st.caption(f"🕒 Creado: {p.get('createdAt')}")
                     st.caption(f"🔄 Actualizado: {p.get('updatedAt')}")
                 

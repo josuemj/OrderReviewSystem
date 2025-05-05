@@ -260,6 +260,13 @@ def create_menu_item(data, image_file):
     except Exception as e:
         print("Excepción al crear platillo:", e)
         return None
+        
+def get_menu_image(image_file_id: str):
+    if image_file_id:
+        return f"{API_URL}/menu-items/images/{image_file_id}"
+    else:
+        # Imagen por defecto si no hay `image_file_id`
+        return "https://via.placeholder.com/400x300?text=Sin+imagen"
 
 """
 orders
