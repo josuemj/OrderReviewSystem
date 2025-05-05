@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Path, Query, HTTPException
 from app.controller import menu_item as crud
 from fastapi import UploadFile, File, Form
 from bson import ObjectId
@@ -6,6 +6,9 @@ import gridfs
 from fastapi.responses import StreamingResponse
 import sys
 import os
+from app.db.client import db
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+fs_bucket = AsyncIOMotorGridFSBucket(db)
 
 router = APIRouter(prefix="/menu-items", tags=["Menu Items"])
 
@@ -36,3 +39,11 @@ async def create_menu_item(
         price=price,
         image_file=image
     )
+@router.get("/images/{file_id}")
+async def get_image(file_id: str):
+    try:
+        file_id = ObjectId(file_id)
+        stream = await fs_bucket.open_download_stream(file_id)
+        return StreamingResponse(stream, media_type="image/jpeg")
+    except Exception:
+        raise HTTPException(status_code=404, detail="Imagen no encontrada")

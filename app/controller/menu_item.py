@@ -8,6 +8,8 @@ import gridfs
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from bson import ObjectId
 from app.db.client import db
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+fs_bucket = AsyncIOMotorGridFSBucket(db)
 
 
 def convert_objectid(doc):
@@ -74,14 +76,23 @@ async def get_all_menu_items():
     items_cursor = db.menu_items.find()
     items = []
     async for item in items_cursor:
-        item["_id"] = str(item["_id"])  # convertir ObjectId a string
-        item["restaurantId"] = str(item["restaurantId"])  # si también es ObjectId
+        item["_id"] = str(item["_id"])  # convertir _id
+        item["restaurantId"] = str(item["restaurantId"])  # convertir restaurantId
+        if "image_file_id" in item and isinstance(item["image_file_id"], ObjectId):
+            item["image_file_id"] = str(item["image_file_id"])  # convertir image_file_id
         items.append(item)
     return items
 
+
 async def create_menu_item(restaurant_id, name, description, price, image_file):
+    # Leer bytes del archivo
+    image_bytes = await image_file.read()
+
     # Subir imagen a GridFS
-    file_id = ""
+    file_id = await fs_bucket.upload_from_stream(
+        image_file.filename,
+        image_bytes
+    )
 
     # Documento del platillo
     new_item = {
