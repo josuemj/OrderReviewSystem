@@ -17,7 +17,6 @@ async def get_total_orders():
     count = await crud.get_total_items()
     return {"total": count}
 
-
 @router.get("/by-restaurant/{restaurant_id}")
 async def get_menu_items_by_restaurant(restaurant_id: str):
     return await crud.get_menu_items_by_restaurant_id(restaurant_id)
@@ -53,6 +52,31 @@ async def delete_menu_item(menu_item_id: str):
         return {"message": "Platillo eliminado correctamente"}
     else:
         raise HTTPException(status_code=404, detail="Platillo no encontrado o error al eliminar")
+
+@router.put("/{menu_item_id}")
+async def update_menu_item(
+    menu_item_id: str,
+    restaurantId: str = Form(...),
+    name: str = Form(...),
+    description: str = Form(...),
+    price: float = Form(...),
+    image: UploadFile = File(None)  # imagen opcional
+):
+    print("✅ Llamada recibida para actualizar:", menu_item_id)
+
+    updated = await crud.update_menu_item(
+        menu_item_id=menu_item_id,
+        restaurant_id=restaurantId,
+        name=name,
+        description=description,
+        price=price,
+        image_file=image
+    )
+    if updated:
+        return {"message": "Platillo actualizado correctamente"}
+    else:
+        raise HTTPException(status_code=404, detail="Error al actualizar platillo")
+
 
 @router.get("/images/{file_id}")
 async def get_image(file_id: str):

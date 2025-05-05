@@ -268,6 +268,25 @@ def get_menu_image(image_file_id: str):
         # Imagen por defecto si no hay `image_file_id`
         return "https://via.placeholder.com/400x300?text=Sin+imagen"
 
+def update_menu_item(menu_item_id, data, image_file=None):
+    try:
+        payload = {
+            'restaurantId': data['restaurantId'],
+            'name': data['name'],
+            'description': data['description'],
+            'price': str(data['price']),
+        }
+        files = {}
+        if image_file:
+            files['image'] = (image_file.name, image_file, 'multipart/form-data')
+
+        response = requests.put(f"{API_URL}/menu-items/{menu_item_id}", data=payload, files=files)
+        return response.status_code == 200
+    except Exception as e:
+        print("Error actualizando platillo:", e)
+        return False
+
+
 def delete_menu_item(menu_item_id):
     try:
         response = requests.delete(f"{API_URL}/menu-items/{menu_item_id}")

@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image, delete_menu_item
+from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image, delete_menu_item, update_menu_item
 import time
 def render():
     st.title("🧾 Gestión de platillos")
@@ -27,7 +27,7 @@ def render():
         else:
             st.success(f"Se encontraron {len(platillos)} platillos.")
             for p in platillos:
-                with st.expander(p["name"]):
+                with st.expander(p["name"]):  # solo un expander
                     st.markdown(f"📝 **Descripción:** {p.get('description', 'Sin descripción')}")
                     st.markdown(f"💰 **Precio:** Q{p.get('price', 'No especificado')}")
 
@@ -42,14 +42,37 @@ def render():
                     st.caption(f"🔄 Actualizado: {p.get('updatedAt')}")
 
                     # 🔴 Botón de eliminar
-                    if st.button(f"🗑️ Eliminar '{p['name']}'", key=p["_id"]):
+                    if st.button(f"🗑️ Eliminar '{p['name']}'", key="del_" + p["_id"]):
                         if delete_menu_item(p["_id"]):
                             st.success("Platillo eliminado correctamente.")
-                            time.sleep(0.5) 
+                            time.sleep(0.5)
                             st.rerun()
                         else:
                             st.error("No se pudo eliminar el platillo.")
-                
+
+                    # ✏️ Formulario para actualizar
+                    st.write("✏️ actualizar el platillo")
+                    with st.form(f"form_actualizar_{p['_id']}"):
+                        new_name = st.text_input("Nuevo nombre", value=p["name"])
+                        new_description = st.text_area("Nueva descripción", value=p["description"])
+                        new_price = st.number_input("Nuevo precio", value=float(p["price"]))
+                        new_image = st.file_uploader("Nueva imagen (opcional)", type=["jpg", "jpeg", "png"])
+
+                        submitted = st.form_submit_button("Actualizar")
+                        if submitted:
+                            update_data = {
+                                "restaurantId": p["restaurantId"],
+                                "name": new_name,
+                                "description": new_description,
+                                "price": new_price
+                            }
+                            success = update_menu_item(p["_id"], update_data, new_image)
+                            if success:
+                                st.success("Platillo actualizado correctamente")
+                                st.rerun()
+                            else:
+                                st.error("Error al actualizar el platillo")
+
     elif opcion == "➕ Crear platillo":
         st.subheader("Crear un nuevo platillo")
 

@@ -13,11 +13,11 @@ fs_bucket = AsyncIOMotorGridFSBucket(db)
 
 
 def convert_objectid(doc):
-    # Convierte los ObjectId a strings
-    doc["_id"] = str(doc["_id"])
-    if "restaurantId" in doc and isinstance(doc["restaurantId"], ObjectId):
-        doc["restaurantId"] = str(doc["restaurantId"])
+    for key, value in doc.items():
+        if isinstance(value, ObjectId):
+            doc[key] = str(value)
     return doc
+
 
 async def get_menu_items_by_restaurant_id(restaurant_id: str):
     try:
@@ -26,7 +26,17 @@ async def get_menu_items_by_restaurant_id(restaurant_id: str):
         return []
 
     items = await db.menu_items.find({"restaurantId": object_id}).to_list(length=None)
-    return [convert_objectid(item) for item in items]
+
+    safe_items = []
+    for item in items:
+        try:
+            safe_items.append(convert_objectid(item))
+        except Exception as e:
+            print(" Error convirtiendo item:", item)
+            print("-", e)
+            continue
+    return safe_items
+
 
 async def get_total_items():
     result = await db["menu_items"].count_documents({})
@@ -137,4 +147,41 @@ async def delete_menu_item(menu_item_id: str):
         print("Error al eliminar platillo:", e)
         return False
 
+async def update_menu_item(menu_item_id, restaurant_id, name, description, price, image_file=None):
+    print("📥 Datos recibidos para actualización:", name, description, price)
 
+    try:
+        item = await db.menu_items.find_one({"_id": ObjectId(menu_item_id)})
+        if not item:
+            return False
+
+        update_fields = {
+            "restaurantId": ObjectId(restaurant_id),
+            "name": name,
+            "description": description,
+            "price": price,
+            "updatedAt": datetime.utcnow().isoformat()
+        }
+
+        # Si se sube una nueva imagen
+        if image_file:
+            from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+            bucket = AsyncIOMotorGridFSBucket(db)
+
+            # Eliminar la imagen antigua si existe
+            if "image_file_id" in item and item["image_file_id"]:
+                try:
+                    await bucket.delete(item["image_file_id"])
+                except Exception:
+                    pass  # Si no existe, ignora
+
+            # Subir nueva imagen
+            image_bytes = await image_file.read()
+            new_file_id = await bucket.upload_from_stream(image_file.filename, image_bytes)
+            update_fields["image_file_id"] = new_file_id
+
+        await db.menu_items.update_one({"_id": ObjectId(menu_item_id)}, {"$set": update_fields})
+        return True
+    except Exception as e:
+        print("Error actualizando platillo:", e)
+        return False
