@@ -114,3 +114,27 @@ async def create_menu_item(restaurant_id, name, description, price, image_file):
     new_item["restaurantId"] = str(new_item["restaurantId"])
     new_item["image_file_id"] = str(file_id)
     return new_item
+
+async def delete_menu_item(menu_item_id: str):
+    try:
+        item = await db.menu_items.find_one({"_id": ObjectId(menu_item_id)})
+        if not item:
+            return False
+
+        # Eliminar imagen de GridFS si existe
+        if "image_file_id" in item and item["image_file_id"]:
+            from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+            bucket = AsyncIOMotorGridFSBucket(db)
+            try:
+                await bucket.delete(item["image_file_id"])
+            except Exception:
+                pass  # Si ya no existe, ignoramos
+
+        # Eliminar documento
+        await db.menu_items.delete_one({"_id": ObjectId(menu_item_id)})
+        return True
+    except Exception as e:
+        print("Error al eliminar platillo:", e)
+        return False
+
+

@@ -45,6 +45,15 @@ async def create_menu_item(
         price=price,
         image_file=image
     )
+
+@router.delete("/{menu_item_id}")
+async def delete_menu_item(menu_item_id: str):
+    success = await crud.delete_menu_item(menu_item_id)
+    if success:
+        return {"message": "Platillo eliminado correctamente"}
+    else:
+        raise HTTPException(status_code=404, detail="Platillo no encontrado o error al eliminar")
+
 @router.get("/images/{file_id}")
 async def get_image(file_id: str):
     try:

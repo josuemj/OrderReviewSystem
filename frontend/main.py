@@ -30,7 +30,7 @@ def main():
                 st.rerun()
         else:
             
-            selected = st.sidebar.radio("Ir a:", ["🏠 Restaurantes", "📦 Órdenes", "📝 Stats", "🗂️ Archivos", "👥 Usuarios", "Menu items"])
+            selected = st.sidebar.radio("Ir a:", ["🏠 Restaurantes", "📦 Órdenes", "📝 Stats", "🗂️ Archivos", "👥 Usuarios", "🍽️ Menu items"])
 
             if selected == "🏠 Restaurantes":
                 restaurants.render()
@@ -47,7 +47,7 @@ def main():
             elif selected == "👥 Usuarios":
                 users.render()
                 
-            elif selected == "Menu items":
+            elif selected == "🍽️ Menu items":
                 menu_items.render()
 
             if st.sidebar.button("Cerrar sesión", key="logout_sidebar"):

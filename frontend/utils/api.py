@@ -268,6 +268,14 @@ def get_menu_image(image_file_id: str):
         # Imagen por defecto si no hay `image_file_id`
         return "https://via.placeholder.com/400x300?text=Sin+imagen"
 
+def delete_menu_item(menu_item_id):
+    try:
+        response = requests.delete(f"{API_URL}/menu-items/{menu_item_id}")
+        return response.status_code == 200
+    except Exception as e:
+        print("Error al eliminar platillo:", e)
+        return False
+
 """
 orders
 """

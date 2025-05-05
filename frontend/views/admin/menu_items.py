@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image
+from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image, delete_menu_item
 
 def render():
     st.title("🧾 Gestión de platillos")
@@ -30,20 +30,24 @@ def render():
                 with st.expander(p["name"]):
                     st.markdown(f"📝 **Descripción:** {p.get('description', 'Sin descripción')}")
                     st.markdown(f"💰 **Precio:** Q{p.get('price', 'No especificado')}")
-                    
-                    """
-                    st.image(image_url)
 
-                    """
                     image_file_id = p.get("image_file_id")
                     if image_file_id:
-                        image_url = get_menu_image(p.get("image_file_id"))
+                        image_url = get_menu_image(image_file_id)
                         st.image(image_url)
                     else:
-                        st.write("Imagen del platillo no disponible por el momento")
+                        st.write("📷 Imagen del platillo no disponible")
 
                     st.caption(f"🕒 Creado: {p.get('createdAt')}")
                     st.caption(f"🔄 Actualizado: {p.get('updatedAt')}")
+
+                    # 🔴 Botón de eliminar
+                    if st.button(f"🗑️ Eliminar '{p['name']}'", key=p["_id"]):
+                        if delete_menu_item(p["_id"]):
+                            st.success("Platillo eliminado correctamente.")
+                            st.rerun()
+                        else:
+                            st.error("No se pudo eliminar el platillo.")
                 
     elif opcion == "➕ Crear platillo":
         st.subheader("Crear un nuevo platillo")
