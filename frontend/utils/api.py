@@ -65,6 +65,26 @@ def update_restaurant(restaurant_id: str, data: dict):
         print("Error al actualizar restaurante:", e)
         return False
 
+def get_restaurants_by_category(category: str):
+    try:
+        response = requests.get(f"{API_URL}/restaurants/by-category", params={"category": category})
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error al buscar por categoría:", e)
+        return []
+
+def get_categories():
+    try:
+        response = requests.get(f"{API_URL}/restaurants/categories")
+        if response.status_code == 200:
+            return response.json()
+        return []
+    except Exception as e:
+        print("Error al buscar por categoría:", e)
+        return []
+
 def get_all_restaurants():
     try:
         response = requests.get(f"{API_URL}/restaurants/")
@@ -188,6 +208,18 @@ def get_menu_items_by_restaurant(restaurant_id: str):
         print("Error obteniendo platillos del restaurante:", e)
         return []
 
+def get_total_items():
+    try:
+        response = requests.get(f"{API_URL}/menu-items/total")
+        if response.status_code == 200:
+            return response.json().get("total", 0)
+        else:
+            print("Error al obtener total de órdenes:", response.status_code)
+            return 0
+    except Exception as e:
+        print("Error al conectar con la API:", e)
+        return 0
+    
 def get_top_selling_menu_items(top: int = 10):
     try:
         response = requests.get(f"{API_URL}/menu-items/top", params={"limit": top})  # <--- aquí cambio "top" por "limit"
@@ -240,6 +272,18 @@ def set_order(data: dict):
     except Exception as e:
         print("Error al crear orden:", e)
         return False
+
+def get_total_orders():
+    try:
+        response = requests.get(f"{API_URL}/orders/total")
+        if response.status_code == 200:
+            return response.json().get("total", 0)
+        else:
+            print("Error al obtener total de órdenes:", response.status_code)
+            return 0
+    except Exception as e:
+        print("Error al conectar con la API:", e)
+        return 0
 
 def get_orders_by_user(userId: str):
     try:

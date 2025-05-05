@@ -16,6 +16,17 @@ async def create_restaurant(restaurant: RestaurantBase):
         raise HTTPException(status_code=400, detail="No se pudo crear el restaurante")
     return {"message": "Restaurante creado exitosamente"}
 
+
+@router.get("/by-category")
+async def get_restaurants_by_category(category: str):
+    result = await crud.get_restaurants_by_category(category)
+    return result
+
+@router.get("/categories")
+async def get_category():
+    result = await crud.get_all_categories()
+    return result
+
 @router.put("/{restaurant_id}", response_model=Dict[str, str])
 async def update_restaurant(restaurant_id: str, restaurant: RestaurantBase):
     updated = await crud.update_restaurant(restaurant_id, restaurant.dict())

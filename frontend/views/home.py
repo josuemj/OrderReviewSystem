@@ -1,6 +1,9 @@
 import streamlit as st
-from utils.api import get_all_restaurants, get_top_rated_restaurants, get_avg_rating_by_restaurant, get_menu_items_by_restaurant, set_order
+from utils.api import get_all_restaurants, get_top_rated_restaurants, get_avg_rating_by_restaurant, get_menu_items_by_restaurant, set_order, get_restaurants_by_category, get_categories
 import pandas as pd
+
+ALL_CATEGORIES = get_categories()
+
 
 def render():
     st.title("🍕 Panel Principal - Pizzabella")
@@ -9,7 +12,7 @@ def render():
     st.markdown("---")
     st.subheader("¿Qué deseas hacer?")
     
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         if st.button("🔎 Ver todos los restaurantes"):
@@ -27,6 +30,28 @@ def render():
             top_restaurants = get_top_rated_restaurants()
             st.session_state.restaurants = top_restaurants
             st.session_state.view = "top"
+    
+    with col3:
+        if st.button("🕵️ Buscar por categorías"):
+            st.session_state.view = "category_search"
+            st.session_state.selected_category = ALL_CATEGORIES[0]  # Valor por defecto inicial
+
+        if st.session_state.get("view") in ["category_search", "category_results"]:
+            selected = st.selectbox(
+                "Selecciona una categoría", 
+                ALL_CATEGORIES, 
+                index=ALL_CATEGORIES.index(st.session_state.get("selected_category", ALL_CATEGORIES[0]))
+            )
+            st.session_state.selected_category = selected
+
+            if st.button("🔍 Buscar restaurantes con esa categoría"):
+                filtered = get_restaurants_by_category(selected)
+                st.session_state.restaurants = filtered
+                st.session_state.view = "category_results"
+
+        if st.session_state.get("view") == "category_results":
+            st.subheader(f"Restaurantes en categoría: {st.session_state.selected_category}")
+
 
     st.markdown("---")
     if "restaurants" in st.session_state:
