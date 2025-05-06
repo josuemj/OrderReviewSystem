@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image, delete_menu_item, update_menu_item
+from utils.api import get_all_menu_items, get_all_restaurants, create_menu_item, get_menu_image, delete_menu_item, update_menu_item, create_menu_items_bulk
 import time
 def render():
     st.title("🧾 Gestión de platillos")
@@ -10,6 +10,7 @@ def render():
         (
             "📋 Ver todos los platillos",
             "➕ Crear platillo",
+            "🤌 Crear varios platillos",
             "✏️ Actualizar platillo"
         )
     )
@@ -109,3 +110,60 @@ def render():
                         st.success(f"Platillo '{name}' creado correctamente.")
                     else:
                         st.error("Error al crear el platillo.")
+                        
+    elif opcion == "🤌 Crear varios platillos":
+        
+        st.subheader("Crear varios platillos de forma masiva")
+
+        restaurants = get_all_restaurants()
+        if not restaurants:
+            st.error("No se pudieron cargar los restaurantes.")
+            st.stop()
+
+        restaurant_options = {r["name"]: r["_id"] for r in restaurants}
+        selected_restaurant = st.selectbox("Selecciona un restaurante", list(restaurant_options.keys()))
+        restaurant_id = restaurant_options[selected_restaurant]
+
+        if "bulk_menu_items" not in st.session_state:
+            st.session_state.bulk_menu_items = []
+
+        st.markdown("### ➕ Añadir platillo a la lista")
+        with st.form("form_agregar_bulk"):
+            name = st.text_input("Nombre del platillo")
+            description = st.text_area("Descripción")
+            price = st.number_input("Precio", min_value=0.0, step=0.5)
+            image_file = st.file_uploader("Selecciona una imagen", type=["jpg", "jpeg", "png"])
+
+            if st.form_submit_button("Agregar a la lista"):
+                if not all([name, description, price, image_file]):
+                    st.warning("Completa todos los campos e incluye imagen.")
+                else:
+                    st.session_state.bulk_menu_items.append({
+                        "name": name,
+                        "description": description,
+                        "price": price,
+                        "image": image_file
+                    })
+                    st.success(f"Platillo '{name}' añadido a la lista")
+
+        # Mostrar resumen de lo agregado
+        if st.session_state.bulk_menu_items:
+            st.markdown("### 📝 Platillos en la lista para guardar")
+            for i, item in enumerate(st.session_state.bulk_menu_items):
+                st.markdown(f"**{i+1}. {item['name']}** - Q{item['price']}")
+                st.caption(f"📝 {item['description']}")
+                st.image(item["image"], width=200)
+                if st.button(f"❌ Eliminar", key=f"delete_{i}"):
+                    st.session_state.bulk_menu_items.pop(i)
+                    st.rerun()
+
+            if st.button("🚀 Crear todos los platillos"):
+                result = create_menu_items_bulk(restaurant_id, st.session_state.bulk_menu_items)
+                if result:
+                    st.success(f"Se crearon {result['inserted_count']} platillos.")
+                    st.session_state.bulk_menu_items = []
+                    st.rerun()
+                else:
+                    st.error("Error al crear los platillos.")
+        else:
+            st.info("No has agregado platillos aún.")

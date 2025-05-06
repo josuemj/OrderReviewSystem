@@ -294,6 +294,32 @@ def delete_menu_item(menu_item_id):
     except Exception as e:
         print("Error al eliminar platillo:", e)
         return False
+    
+def create_menu_items_bulk(restaurant_id, items: list):
+    try:
+        data = [("restaurantId", restaurant_id)]
+        files = []
+
+        for item in items:
+            data.append(("names", item["name"]))
+            data.append(("descriptions", item["description"]))
+            data.append(("prices", str(item["price"])))
+            files.append(("images", (item["image"].name, item["image"], "multipart/form-data")))
+
+        response = requests.post(
+            f"{API_URL}/menu-items/bulk-create",
+            data=data,
+            files=files
+        )
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("❌ Error en bulk create:", response.status_code, response.text)
+            return None
+    except Exception as e:
+        print("❌ Excepción conectando al endpoint bulk-create:", e)
+        return None
 
 """
 orders
@@ -403,7 +429,6 @@ def bulk_update_orders_by_restaurant(restaurant_id: str, updates: list):
     except Exception as e:
         print("Error conectando a updateMany:", e)
         return 0
-
 
 """
 Files (Upload and Download)

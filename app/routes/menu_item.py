@@ -9,6 +9,8 @@ import os
 from app.db.client import db
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 fs_bucket = AsyncIOMotorGridFSBucket(db)
+from typing import List
+
 
 router = APIRouter(prefix="/menu-items", tags=["Menu Items"])
 
@@ -52,6 +54,19 @@ async def delete_menu_item(menu_item_id: str):
         return {"message": "Platillo eliminado correctamente"}
     else:
         raise HTTPException(status_code=404, detail="Platillo no encontrado o error al eliminar")
+
+@router.post("/bulk-create")
+async def bulk_create_menu_items(
+    restaurantId: str = Form(...),
+    names: List[str] = Form(...),
+    descriptions: List[str] = Form(...),
+    prices: List[float] = Form(...),
+    images: List[UploadFile] = File(...)
+):
+    if not (len(names) == len(descriptions) == len(prices) == len(images)):
+        raise HTTPException(status_code=400, detail="Todos los campos deben tener el mismo número de elementos")
+
+    return await crud.bulk_create_menu_items(restaurantId, names, descriptions, prices, images)
 
 @router.put("/{menu_item_id}")
 async def update_menu_item(

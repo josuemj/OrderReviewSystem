@@ -185,3 +185,28 @@ async def update_menu_item(menu_item_id, restaurant_id, name, description, price
     except Exception as e:
         print("Error actualizando platillo:", e)
         return False
+
+async def bulk_create_menu_items(restaurant_id, names, descriptions, prices, images):
+    from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+    bucket = AsyncIOMotorGridFSBucket(db)
+
+    menu_docs = []
+
+    for name, desc, price, image in zip(names, descriptions, prices, images):
+        image_bytes = await image.read()
+        file_id = await bucket.upload_from_stream(image.filename, image_bytes)
+
+        doc = {
+            "restaurantId": ObjectId(restaurant_id),
+            "name": name,
+            "description": desc,
+            "price": price,
+            "image_file_id": file_id,
+            "createdAt": datetime.utcnow().isoformat(),
+            "updatedAt": datetime.utcnow().isoformat()
+        }
+
+        menu_docs.append(doc)
+
+    result = await db.menu_items.insert_many(menu_docs)
+    return {"inserted_count": len(result.inserted_ids)}
