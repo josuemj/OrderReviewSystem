@@ -1,10 +1,21 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Body, HTTPException, Query
 from app.controller import order as crud
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.order import CreateOrder, UpdateItem, UpdateOrderPayload
 router = APIRouter(prefix="/orders", tags=["Orders"])
+
+@router.put("/update-by-restaurant")
+async def update_orders_by_restaurant(data: dict = Body(...)): 
+    restaurant_id = data.get("restaurantId")
+    updates = data.get("updates", [])
+
+    if not restaurant_id or not updates:
+        raise HTTPException(status_code=400, detail="Faltan datos")
+
+    updated = await crud.bulk_update_orders_by_restaurant(restaurant_id, updates)
+    return {"updated_count": updated}
 
 @router.post("/")
 async def create_order(order: CreateOrder):
@@ -44,3 +55,5 @@ async def get_orders_by_user_sorted(user_id: str):
 @router.get("/pending/{restaurant_id}")
 async def get_pending_orders(restaurant_id: str):
     return await crud.get_pending_orders_by_restaurant(restaurant_id)
+
+

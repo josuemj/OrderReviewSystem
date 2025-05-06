@@ -376,7 +376,33 @@ def get_orders_by_user_and_date(user_id: str, start_date: str, end_date: str):
         print("Error al conectar con la API:", e)
         return []
 
+def get_pending_orders_by_restaurant(restaurant_id: str):
+    try:
+        response = requests.get(f"{API_URL}/orders/pending/{restaurant_id}")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error al obtener órdenes pendientes:", response.status_code)
+            return []
+    except Exception as e:
+        print("Error al conectar con la API de órdenes pendientes:", e)
+        return []
 
+def bulk_update_orders_by_restaurant(restaurant_id: str, updates: list):
+    try:
+        payload = {
+            "restaurantId": restaurant_id,
+            "updates": updates  # [{'orderId': '...', 'status': '...'}, ...]
+        }
+        response = requests.put(f"{API_URL}/orders/update-by-restaurant", json=payload)
+        if response.status_code == 200:
+            return response.json().get("updated_count", 0)
+        else:
+            print("Error en updateMany:", response.status_code, response.text)
+            return 0
+    except Exception as e:
+        print("Error conectando a updateMany:", e)
+        return 0
 
 
 """

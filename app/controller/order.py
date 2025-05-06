@@ -205,6 +205,38 @@ async def get_pending_orders_by_restaurant(restaurant_id: str):
     orders = await db.orders.find(query).to_list(length=25)  # 👈 límite de 25
     return [convert_objectids_recursive(order) for order in orders]
 
+async def bulk_update_orders_by_restaurant(restaurant_id: str, updates: list):
+    try:
+        restaurant_obj_id = ObjectId(restaurant_id)
+
+        # Agrupar por estado (para aplicar update_many por grupo)
+        grouped_updates = {}
+        for update in updates:
+            status = update.get("status")
+            if status:
+                grouped_updates.setdefault(status, []).append(update["orderId"])
+
+        total_updated = 0
+        for status, order_ids in grouped_updates.items():
+            object_ids = [ObjectId(oid) for oid in order_ids]
+            result = await db.orders.update_many(
+                {
+                    "_id": {"$in": object_ids},
+                    "restaurantId": restaurant_obj_id
+                },
+                {
+                    "$set": {"status": status}
+                }
+            )
+            total_updated += result.modified_count
+
+        return total_updated
+
+    except Exception as e:
+        print("❌ Error en update_many por grupos:", e)
+        return 0
+
+    
 def convert_objectids_recursive(obj):
     if isinstance(obj, dict):
         return {k: convert_objectids_recursive(v) for k, v in obj.items()}
