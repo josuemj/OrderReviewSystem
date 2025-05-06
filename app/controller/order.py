@@ -191,3 +191,26 @@ async def get_orders_with_menu_names_sorted(user_id: str):
     orders = await db.orders.aggregate(pipeline).to_list(length=None)
     return fix_objectid(orders)  # Usamos el fix para ObjectId
 
+async def get_pending_orders_by_restaurant(restaurant_id: str):
+    try:
+        restaurant_obj_id = ObjectId(restaurant_id)
+    except Exception:
+        return []
+
+    query = {
+        "restaurantId": restaurant_obj_id,
+        "status": {"$ne": "entregado"}
+    }
+
+    orders = await db.orders.find(query).to_list(length=25)  # 👈 límite de 25
+    return [convert_objectids_recursive(order) for order in orders]
+
+def convert_objectids_recursive(obj):
+    if isinstance(obj, dict):
+        return {k: convert_objectids_recursive(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_objectids_recursive(i) for i in obj]
+    elif isinstance(obj, ObjectId):
+        return str(obj)
+    else:
+        return obj

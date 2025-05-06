@@ -40,3 +40,7 @@ async def get_orders_by_user_and_date(
 @router.get("/usersortorders/{user_id}")
 async def get_orders_by_user_sorted(user_id: str):
     return await crud.get_orders_with_menu_names_sorted(user_id)
+
+@router.get("/pending/{restaurant_id}")
+async def get_pending_orders(restaurant_id: str):
+    return await crud.get_pending_orders_by_restaurant(restaurant_id)
